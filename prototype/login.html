@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ログイン - PlannerwithExpense</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="auth-card">
+    <h1>PlannerwithExpense</h1>
+    <form id="login-form">
+      <div class="form-row">
+        <label for="email">メールアドレス</label>
+        <input type="email" id="email" placeholder="example@mail.com">
+      </div>
+      <div class="form-row">
+        <label for="password">パスワード</label>
+        <input type="password" id="password" placeholder="********">
+      </div>
+      <div class="submit-row">
+        <button type="submit">ログイン</button>
+      </div>
+    </form>
+    <div class="switch-link">
+      アカウントをお持ちでない方は<br>
+      <a href="register.html">新規登録はこちら</a>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      window.location.href = 'calendar.html';
+    });
+  </script>
+</body>
+</html>
