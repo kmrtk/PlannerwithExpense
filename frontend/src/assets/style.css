@@ -159,11 +159,29 @@ table.calendar-table th {
 
 .schedule-chip {
   display: block;
+  position: relative;
   background: #cfe0f5;
   border-radius: 3px;
-  padding: 2px 4px;
+  padding: 2px 18px 2px 4px;
   margin-top: 2px;
   font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.schedule-chip .chip-delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  color: #900;
+  padding: 0 4px;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  border-radius: 0;
+}
+
+.day-cell {
   cursor: pointer;
 }
 
