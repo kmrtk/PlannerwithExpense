@@ -3,7 +3,7 @@
   <main>
     <div class="calendar-title">{{ year }}年{{ month }}月</div>
     <div class="toolbar">
-      <button @click="openAddModal">＋ 予定追加</button>
+      <button @click="openAddModal(null)">＋ 予定追加</button>
     </div>
     <table class="calendar-table">
       <thead>
@@ -13,16 +13,17 @@
       </thead>
       <tbody>
         <tr v-for="(week, wi) in weeks" :key="wi">
-          <td v-for="(day, di) in week" :key="di">
+          <td v-for="(day, di) in week" :key="di" :class="{ 'day-cell': day }" @click="day && openAddModal(day)">
             <template v-if="day">
               {{ day.getDate() }}
               <span
                 v-for="schedule in schedulesForDay(day)"
                 :key="schedule.id"
                 class="schedule-chip"
-                @click="openEditModal(schedule)"
+                @click.stop="openEditModal(schedule)"
               >
                 {{ schedule.title }}
+                <button class="chip-delete" title="削除" @click.stop="handleQuickDelete(schedule)">×</button>
               </span>
             </template>
           </td>
@@ -34,6 +35,7 @@
   <ScheduleModal
     v-if="showModal"
     :schedule="editingSchedule"
+    :default-date="prefilledDate"
     @close="closeModal"
     @save="handleSave"
     @delete="handleDelete"
@@ -55,6 +57,7 @@ const month = today.getMonth() + 1;
 const schedules = ref([]);
 const showModal = ref(false);
 const editingSchedule = ref(null);
+const prefilledDate = ref(null);
 
 const weeks = computed(() => {
   const firstDay = new Date(year, month - 1, 1);
@@ -88,8 +91,9 @@ async function fetchSchedules() {
   schedules.value = data;
 }
 
-function openAddModal() {
+function openAddModal(day) {
   editingSchedule.value = null;
+  prefilledDate.value = day ? dateKey(day) : null;
   showModal.value = true;
 }
 
@@ -101,6 +105,13 @@ function openEditModal(schedule) {
 function closeModal() {
   showModal.value = false;
   editingSchedule.value = null;
+  prefilledDate.value = null;
+}
+
+async function handleQuickDelete(schedule) {
+  if (!window.confirm(`「${schedule.title}」を削除しますか？`)) return;
+  await deleteSchedule(schedule.id);
+  await fetchSchedules();
 }
 
 async function handleSave(payload) {

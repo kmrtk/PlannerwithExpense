@@ -33,12 +33,13 @@ import { ref } from "vue";
 
 const props = defineProps({
   schedule: { type: Object, default: null },
+  defaultDate: { type: String, default: null },
 });
 const emit = defineEmits(["close", "save", "delete"]);
 
 const isEdit = !!props.schedule;
 const title = ref(props.schedule?.title || "");
-const date = ref(props.schedule ? props.schedule.start_datetime.slice(0, 10) : "");
+const date = ref(props.schedule ? props.schedule.start_datetime.slice(0, 10) : props.defaultDate || "");
 const memo = ref(props.schedule?.memo || "");
 
 function handleSubmit() {
