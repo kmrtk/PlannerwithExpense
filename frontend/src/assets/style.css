@@ -1,0 +1,211 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  background: #f5f6f8;
+  color: #333;
+}
+
+header.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #4a6fa5;
+  color: #fff;
+  padding: 12px 20px;
+}
+
+header.app-header .app-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+header.app-header nav a {
+  color: #fff;
+  margin-left: 16px;
+  text-decoration: none;
+}
+
+header.app-header nav a.active {
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+main {
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.auth-card {
+  max-width: 360px;
+  margin: 80px auto;
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.auth-card h1 {
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-row {
+  margin-bottom: 12px;
+}
+
+.form-row label {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  background: #4a6fa5;
+  color: #fff;
+}
+
+button.secondary {
+  background: #ccc;
+  color: #333;
+}
+
+button.link {
+  background: none;
+  color: #4a6fa5;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.auth-card .submit-row {
+  text-align: center;
+  margin: 16px 0;
+}
+
+.auth-card .switch-link {
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+table.data-table th,
+table.data-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+table.data-table th {
+  background: #eef1f6;
+}
+
+table.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  table-layout: fixed;
+}
+
+table.calendar-table th,
+table.calendar-table td {
+  border: 1px solid #ddd;
+  height: 80px;
+  vertical-align: top;
+  padding: 4px;
+  font-size: 0.8rem;
+}
+
+table.calendar-table th {
+  background: #eef1f6;
+  height: auto;
+  text-align: center;
+}
+
+.calendar-title {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.schedule-chip {
+  display: block;
+  background: #cfe0f5;
+  border-radius: 3px;
+  padding: 2px 4px;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 320px;
+}
+
+.modal-box h2 {
+  font-size: 1rem;
+  margin-top: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.modal-actions .right-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.error-message {
+  color: #c0392b;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 8px 0 0;
+}

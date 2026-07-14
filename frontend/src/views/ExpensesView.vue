@@ -1,0 +1,95 @@
+<template>
+  <AppHeader />
+  <main>
+    <div class="toolbar">
+      <button @click="openAddModal">＋ 支出追加</button>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>カテゴリ</th>
+          <th>金額</th>
+          <th>メモ</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="expense in expenses" :key="expense.id">
+          <td>{{ expense.date }}</td>
+          <td>{{ expense.category }}</td>
+          <td>{{ expense.amount.toLocaleString() }}円</td>
+          <td>{{ expense.memo }}</td>
+          <td>
+            <button class="secondary" @click="openEditModal(expense)">編集</button>
+            <button class="secondary" @click="handleDelete(expense)">削除</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <ExpenseModal
+    v-if="showModal"
+    :expense="editingExpense"
+    @close="closeModal"
+    @save="handleSave"
+    @delete="handleDeleteFromModal"
+  />
+</template>
+
+<script setup>
+import { onMounted, ref } from "vue";
+import AppHeader from "../components/AppHeader.vue";
+import ExpenseModal from "../components/ExpenseModal.vue";
+import { createExpense, deleteExpense, listExpenses, updateExpense } from "../api/expenses";
+
+const expenses = ref([]);
+const showModal = ref(false);
+const editingExpense = ref(null);
+
+async function fetchExpenses() {
+  const { data } = await listExpenses();
+  expenses.value = data;
+}
+
+function openAddModal() {
+  editingExpense.value = null;
+  showModal.value = true;
+}
+
+function openEditModal(expense) {
+  editingExpense.value = expense;
+  showModal.value = true;
+}
+
+function closeModal() {
+  showModal.value = false;
+  editingExpense.value = null;
+}
+
+async function handleSave(payload) {
+  if (editingExpense.value) {
+    await updateExpense(editingExpense.value.id, payload);
+  } else {
+    await createExpense(payload);
+  }
+  await fetchExpenses();
+  closeModal();
+}
+
+async function handleDelete(expense) {
+  await deleteExpense(expense.id);
+  await fetchExpenses();
+}
+
+async function handleDeleteFromModal() {
+  if (editingExpense.value) {
+    await deleteExpense(editingExpense.value.id);
+    await fetchExpenses();
+  }
+  closeModal();
+}
+
+onMounted(fetchExpenses);
+</script>
