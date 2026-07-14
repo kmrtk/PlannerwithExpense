@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -8,6 +10,12 @@ from app.models.user import User
 from app.schemas.expense import ExpenseCreate, ExpenseOut, ExpenseUpdate
 
 router = APIRouter(prefix="/api/expenses", tags=["expenses"])
+
+
+def _month_range(year: int, month: int) -> tuple[date, date]:
+    start = date(year, month, 1)
+    end = date(year + 1, 1, 1) if month == 12 else date(year, month + 1, 1)
+    return start, end
 
 
 def _get_owned_expense(expense_id: int, db: Session, current_user: User) -> Expense:
@@ -22,8 +30,17 @@ def _get_owned_expense(expense_id: int, db: Session, current_user: User) -> Expe
 
 
 @router.get("", response_model=list[ExpenseOut])
-def list_expenses(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return db.query(Expense).filter(Expense.user_id == current_user.id).order_by(Expense.date.desc()).all()
+def list_expenses(
+    year: int | None = None,
+    month: int | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    query = db.query(Expense).filter(Expense.user_id == current_user.id)
+    if year is not None and month is not None:
+        start, end = _month_range(year, month)
+        query = query.filter(Expense.date >= start, Expense.date < end)
+    return query.order_by(Expense.date.desc()).all()
 
 
 @router.post("", response_model=ExpenseOut, status_code=status.HTTP_201_CREATED)

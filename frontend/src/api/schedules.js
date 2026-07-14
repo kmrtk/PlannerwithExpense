@@ -1,7 +1,7 @@
 import client from "./client";
 
-export function listSchedules() {
-  return client.get("/schedules");
+export function listSchedules(params = {}) {
+  return client.get("/schedules", { params });
 }
 
 export function createSchedule(payload) {

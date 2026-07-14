@@ -6,7 +6,7 @@ from sqlalchemy.exc import OperationalError
 
 from app import models  # noqa: F401  (テーブル登録のためimportが必要)
 from app.database import Base, engine
-from app.routers import auth, expenses, schedules
+from app.routers import auth, budgets, expenses, schedules
 
 app = FastAPI(title="PlannerwithExpense API")
 
@@ -38,6 +38,7 @@ def on_startup():
 app.include_router(auth.router)
 app.include_router(schedules.router)
 app.include_router(expenses.router)
+app.include_router(budgets.router)
 
 
 @app.get("/api/health")

@@ -1,7 +1,7 @@
 import client from "./client";
 
-export function listExpenses() {
-  return client.get("/expenses");
+export function listExpenses(params = {}) {
+  return client.get("/expenses", { params });
 }
 
 export function createExpense(payload) {
