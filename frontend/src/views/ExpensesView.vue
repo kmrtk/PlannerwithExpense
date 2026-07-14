@@ -8,6 +8,7 @@
       <thead>
         <tr>
           <th>日付</th>
+          <th>区分</th>
           <th>カテゴリ</th>
           <th>金額</th>
           <th>メモ</th>
@@ -17,8 +18,13 @@
       <tbody>
         <tr v-for="expense in expenses" :key="expense.id">
           <td>{{ expense.date }}</td>
+          <td>
+            <span :class="['type-badge', expense.type]">{{ expense.type === "income" ? "収入" : "支出" }}</span>
+          </td>
           <td>{{ expense.category }}</td>
-          <td>{{ expense.amount.toLocaleString() }}円</td>
+          <td :class="expense.type === 'income' ? 'amount-income' : 'amount-expense'">
+            {{ expense.type === "income" ? "+" : "-" }}{{ expense.amount.toLocaleString() }}円
+          </td>
           <td>{{ expense.memo }}</td>
           <td>
             <button class="secondary" @click="openEditModal(expense)">編集</button>
