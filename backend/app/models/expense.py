@@ -10,6 +10,7 @@ class Expense(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
+    type = Column(String(10), nullable=False, default="expense", server_default="expense")
     amount = Column(Integer, nullable=False)
     date = Column(Date, nullable=False)
     category = Column(String(255), nullable=False)
