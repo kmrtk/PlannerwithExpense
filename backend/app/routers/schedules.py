@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -8,6 +10,12 @@ from app.models.user import User
 from app.schemas.schedule import ScheduleCreate, ScheduleOut, ScheduleUpdate
 
 router = APIRouter(prefix="/api/schedules", tags=["schedules"])
+
+
+def _month_range(year: int, month: int) -> tuple[date, date]:
+    start = date(year, month, 1)
+    end = date(year + 1, 1, 1) if month == 12 else date(year, month + 1, 1)
+    return start, end
 
 
 def _get_owned_schedule(schedule_id: int, db: Session, current_user: User) -> Schedule:
@@ -22,8 +30,17 @@ def _get_owned_schedule(schedule_id: int, db: Session, current_user: User) -> Sc
 
 
 @router.get("", response_model=list[ScheduleOut])
-def list_schedules(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return db.query(Schedule).filter(Schedule.user_id == current_user.id).order_by(Schedule.start_datetime).all()
+def list_schedules(
+    year: int | None = None,
+    month: int | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    query = db.query(Schedule).filter(Schedule.user_id == current_user.id)
+    if year is not None and month is not None:
+        start, end = _month_range(year, month)
+        query = query.filter(Schedule.start_datetime >= start, Schedule.start_datetime < end)
+    return query.order_by(Schedule.start_datetime).all()
 
 
 @router.post("", response_model=ScheduleOut, status_code=status.HTTP_201_CREATED)

@@ -157,32 +157,117 @@ table.calendar-table th {
   margin-bottom: 12px;
 }
 
-.schedule-chip {
-  display: block;
-  position: relative;
-  background: #cfe0f5;
-  border-radius: 3px;
-  padding: 2px 18px 2px 4px;
-  margin-top: 2px;
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-
-.schedule-chip .chip-delete {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background: transparent;
-  color: #900;
-  padding: 0 4px;
-  font-size: 0.75rem;
-  line-height: 1.6;
-  border-radius: 0;
-}
-
 .day-cell {
   cursor: pointer;
+}
+
+.day-badge {
+  display: block;
+  border-radius: 3px;
+  padding: 1px 4px;
+  margin-top: 2px;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.day-badge.schedule-badge {
+  background: #cfe0f5;
+  color: #2c4f7c;
+}
+
+.day-badge.expense-badge {
+  background: #f5d7d7;
+  color: #a02020;
+}
+
+.day-badge.income-badge {
+  background: #d7f0d9;
+  color: #1e7a2e;
+}
+
+.month-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.budget-bar {
+  background: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.budget-row {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.budget-meter {
+  background: #eee;
+  border-radius: 4px;
+  height: 8px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.budget-meter-fill {
+  height: 100%;
+}
+
+.budget-meter-fill.income {
+  background: #4a9d5f;
+}
+
+.budget-meter-fill.expense {
+  background: #c0392b;
+}
+
+.day-detail-box {
+  width: 400px;
+}
+
+.day-detail-section {
+  margin-bottom: 16px;
+}
+
+.day-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.day-detail-header h3 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.day-detail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.day-detail-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.85rem;
+}
+
+.day-detail-item-title {
+  cursor: pointer;
+}
+
+.day-detail-empty {
+  color: #999;
+  font-size: 0.8rem;
 }
 
 .modal-overlay {

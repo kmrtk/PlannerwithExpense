@@ -44,13 +44,14 @@ import { ref } from "vue";
 
 const props = defineProps({
   expense: { type: Object, default: null },
+  defaultDate: { type: String, default: null },
 });
 const emit = defineEmits(["close", "save", "delete"]);
 
 const isEdit = !!props.expense;
 const type = ref(props.expense?.type || "expense");
 const amount = ref(props.expense?.amount ?? null);
-const date = ref(props.expense?.date || "");
+const date = ref(props.expense?.date || props.defaultDate || "");
 const category = ref(props.expense?.category || "");
 const memo = ref(props.expense?.memo || "");
 
