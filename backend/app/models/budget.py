@@ -13,8 +13,7 @@ class Budget(Base):
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
     year = Column(Integer, nullable=False)
     month = Column(Integer, nullable=False)
-    income_budget = Column(Integer, nullable=False, default=0)
-    expense_budget = Column(Integer, nullable=False, default=0)
+    savings_target = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user = relationship("User", back_populates="budgets")

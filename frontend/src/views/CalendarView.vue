@@ -12,29 +12,25 @@
     </div>
 
     <div class="budget-bar">
-      <div class="budget-row">
-        <span>
-          収入: {{ actualIncome.toLocaleString() }}円 / 目標 {{ (budget?.income_budget ?? 0).toLocaleString() }}円
-          <span v-if="isIncomeOver" class="over-budget-badge">予算超過</span>
+      <div class="budget-summary-row">収入: {{ actualIncome.toLocaleString() }}円</div>
+      <div class="budget-summary-row">支出: {{ actualExpense.toLocaleString() }}円</div>
+      <div class="budget-summary-row">
+        貯蓄: {{ actualSavings.toLocaleString() }}円 / 目標 {{ (budget?.savings_target ?? 0).toLocaleString() }}円
+        <span class="savings-diff" :class="{ 'savings-negative': savingsDiff < 0 }">
+          差分: {{ savingsDiff >= 0 ? "+" : "" }}{{ savingsDiff.toLocaleString() }}円
         </span>
-        <div class="budget-meter" :class="{ over: isIncomeOver }">
-          <div class="budget-meter-fill income" :style="{ width: Math.min(100, incomeRatio) + '%' }"></div>
-        </div>
       </div>
-      <div class="budget-row">
-        <span>
-          支出: {{ actualExpense.toLocaleString() }}円 / 目標 {{ (budget?.expense_budget ?? 0).toLocaleString() }}円
-          <span v-if="isExpenseOver" class="over-budget-badge">予算超過</span>
-        </span>
-        <div class="budget-meter" :class="{ over: isExpenseOver }">
-          <div class="budget-meter-fill expense" :style="{ width: Math.min(100, expenseRatio) + '%' }"></div>
-        </div>
+      <div class="budget-bar-actions">
+        <router-link class="link" :to="{ name: 'yearly-budget', params: { year: displayYear } }">
+          {{ displayYear }}年の累計を見る
+        </router-link>
+        <button class="secondary" @click="showBudgetModal = true">予算を設定</button>
       </div>
-      <button class="secondary" @click="showBudgetModal = true">予算を設定</button>
     </div>
 
     <div class="toolbar">
       <button @click="openAddSchedule(null)">＋ 予定追加</button>
+      <button @click="openAddExpense(null)">＋ 支出追加</button>
     </div>
     <table class="calendar-table">
       <thead>
@@ -143,22 +139,8 @@ const actualIncome = computed(() =>
 const actualExpense = computed(() =>
   expenses.value.filter((e) => e.type === "expense").reduce((sum, e) => sum + e.amount, 0)
 );
-const incomeRatio = computed(() => {
-  const target = budget.value?.income_budget ?? 0;
-  return target > 0 ? Math.round((actualIncome.value / target) * 100) : 0;
-});
-const expenseRatio = computed(() => {
-  const target = budget.value?.expense_budget ?? 0;
-  return target > 0 ? Math.round((actualExpense.value / target) * 100) : 0;
-});
-const isIncomeOver = computed(() => {
-  const target = budget.value?.income_budget ?? 0;
-  return target > 0 && actualIncome.value > target;
-});
-const isExpenseOver = computed(() => {
-  const target = budget.value?.expense_budget ?? 0;
-  return target > 0 && actualExpense.value > target;
-});
+const actualSavings = computed(() => actualIncome.value - actualExpense.value);
+const savingsDiff = computed(() => actualSavings.value - (budget.value?.savings_target ?? 0));
 
 const weeks = computed(() => {
   const firstDay = new Date(displayYear.value, displayMonth.value - 1, 1);

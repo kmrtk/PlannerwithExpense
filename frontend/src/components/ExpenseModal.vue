@@ -20,7 +20,14 @@
         </div>
         <div class="form-row">
           <label for="expense-category">カテゴリ</label>
-          <input id="expense-category" v-model="category" type="text" list="expense-category-presets" required />
+          <input
+            id="expense-category"
+            v-model="category"
+            type="text"
+            list="expense-category-presets"
+            required
+            @focus="$event.target.select()"
+          />
           <datalist id="expense-category-presets">
             <option v-for="preset in EXPENSE_CATEGORY_PRESETS" :key="preset" :value="preset" />
           </datalist>

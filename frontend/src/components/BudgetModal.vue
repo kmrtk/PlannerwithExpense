@@ -4,12 +4,8 @@
       <h2>{{ year }}年{{ month }}月の予算を設定</h2>
       <form @submit.prevent="handleSubmit">
         <div class="form-row">
-          <label for="budget-income">収入目標</label>
-          <input id="budget-income" v-model.number="incomeBudget" type="number" required />
-        </div>
-        <div class="form-row">
-          <label for="budget-expense">支出目標</label>
-          <input id="budget-expense" v-model.number="expenseBudget" type="number" required />
+          <label for="budget-savings">貯蓄目標</label>
+          <input id="budget-savings" v-model.number="savingsTarget" type="number" required />
         </div>
         <div class="modal-actions">
           <div></div>
@@ -33,13 +29,11 @@ const props = defineProps({
 });
 const emit = defineEmits(["close", "save"]);
 
-const incomeBudget = ref(props.budget?.income_budget ?? 0);
-const expenseBudget = ref(props.budget?.expense_budget ?? 0);
+const savingsTarget = ref(props.budget?.savings_target ?? 0);
 
 function handleSubmit() {
   emit("save", {
-    income_budget: incomeBudget.value,
-    expense_budget: expenseBudget.value,
+    savings_target: savingsTarget.value,
   });
 }
 </script>
