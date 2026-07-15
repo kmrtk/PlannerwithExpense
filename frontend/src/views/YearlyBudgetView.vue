@@ -1,5 +1,5 @@
 <template>
-  <AppHeader />
+  <AppSidebar />
   <main>
     <div class="month-nav">
       <router-link class="link" :to="{ name: 'yearly-budget', params: { year: year - 1 } }">← 前年</router-link>
@@ -41,15 +41,19 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import AppHeader from "../components/AppHeader.vue";
+import AppSidebar from "../components/AppSidebar.vue";
 import { getYearlySummary } from "../api/budgets";
 
 const route = useRoute();
 const year = computed(() => Number(route.params.year));
 const summary = ref([]);
 
+let fetchSequence = 0;
+
 async function fetchYearData() {
+  const requestId = ++fetchSequence;
   const { data } = await getYearlySummary(year.value);
+  if (requestId !== fetchSequence) return; // 古いリクエストの応答は無視(年送り連打時のレースコンディション対策)
   summary.value = data;
 }
 

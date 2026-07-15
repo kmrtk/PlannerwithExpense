@@ -1,5 +1,5 @@
 <template>
-  <AppHeader />
+  <AppSidebar />
   <main>
     <div class="month-nav">
       <button class="link" @click="goToPrev">{{ viewMode === "week" ? "← 前週" : "← 前月" }}</button>
@@ -97,7 +97,7 @@
 
 <script setup>
 import { computed, ref, watch } from "vue";
-import AppHeader from "../components/AppHeader.vue";
+import AppSidebar from "../components/AppSidebar.vue";
 import ScheduleModal from "../components/ScheduleModal.vue";
 import ExpenseModal from "../components/ExpenseModal.vue";
 import DayDetailModal from "../components/DayDetailModal.vue";
