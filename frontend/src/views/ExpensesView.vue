@@ -1,4 +1,5 @@
 <template>
+  <div class="app-layout">
   <AppSidebar />
   <main>
     <div class="toolbar">
@@ -35,6 +36,7 @@
       </tbody>
     </table>
   </main>
+  </div>
 
   <ExpenseModal
     v-if="showModal"

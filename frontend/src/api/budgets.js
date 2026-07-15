@@ -11,3 +11,7 @@ export function getYearlySummary(year) {
 export function upsertBudget(payload) {
   return client.put("/budgets", payload);
 }
+
+export function getAllTimeSummary() {
+  return client.get("/budgets/all-time-summary");
+}

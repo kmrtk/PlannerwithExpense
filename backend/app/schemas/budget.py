@@ -24,3 +24,9 @@ class MonthlyBudgetSummary(BaseModel):
     savings_target: int
     actual_income: int
     actual_expense: int
+
+
+class AllTimeSummary(BaseModel):
+    start_year: int | None
+    end_year: int | None
+    total_savings: int
