@@ -3,6 +3,7 @@
   <main>
     <div class="toolbar">
       <button @click="openAddModal">＋ 支出追加</button>
+      <button class="secondary" :disabled="loading" @click="exportCsv">CSVエクスポート</button>
     </div>
     <table class="data-table">
       <thead>
@@ -53,10 +54,12 @@ import { createExpense, deleteExpense, listExpenses, updateExpense } from "../ap
 const expenses = ref([]);
 const showModal = ref(false);
 const editingExpense = ref(null);
+const loading = ref(true);
 
 async function fetchExpenses() {
   const { data } = await listExpenses();
   expenses.value = data;
+  loading.value = false;
 }
 
 function openAddModal() {
@@ -95,6 +98,31 @@ async function handleDeleteFromModal() {
     await fetchExpenses();
   }
   closeModal();
+}
+
+function csvEscape(value) {
+  const str = String(value ?? "");
+  return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+}
+
+function exportCsv() {
+  const header = ["日付", "区分", "カテゴリ", "金額", "メモ"];
+  const rows = expenses.value.map((expense) => [
+    expense.date,
+    expense.type === "income" ? "収入" : "支出",
+    expense.category,
+    expense.amount,
+    expense.memo,
+  ]);
+  const csv = [header, ...rows].map((row) => row.map(csvEscape).join(",")).join("\r\n");
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  link.href = url;
+  link.download = `expenses_${today}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 onMounted(fetchExpenses);

@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import date, datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -8,6 +9,8 @@ class ScheduleCreate(BaseModel):
     start_datetime: datetime
     end_datetime: datetime | None = None
     memo: str | None = None
+    recurrence_type: Literal["none", "weekly", "monthly"] = "none"
+    recurrence_end: date | None = None
 
 
 class ScheduleUpdate(ScheduleCreate):
@@ -22,4 +25,6 @@ class ScheduleOut(BaseModel):
     start_datetime: datetime
     end_datetime: datetime | None
     memo: str | None
+    recurrence_type: Literal["none", "weekly", "monthly"]
+    recurrence_end: date | None
     created_at: datetime

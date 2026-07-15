@@ -74,6 +74,12 @@ main {
   border-radius: 4px;
 }
 
+.recurrence-note {
+  color: #999;
+  font-size: 0.8rem;
+  margin: -4px 0 12px;
+}
+
 button {
   cursor: pointer;
   border: none;
@@ -193,6 +199,16 @@ table.calendar-table th {
   margin-bottom: 12px;
 }
 
+.view-mode-toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.view-mode-toggle button.active {
+  background: #4a7ac0;
+  color: #fff;
+}
+
 .budget-bar {
   background: #fff;
   padding: 12px;
@@ -224,6 +240,18 @@ table.calendar-table th {
 
 .budget-meter-fill.expense {
   background: #c0392b;
+}
+
+.budget-meter.over {
+  outline: 2px solid #c0392b;
+}
+
+.over-budget-badge {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  background: #c0392b;
+  color: #fff;
 }
 
 .day-detail-box {

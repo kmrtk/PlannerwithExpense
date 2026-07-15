@@ -12,6 +12,21 @@
           <input id="schedule-date" v-model="date" type="date" required />
         </div>
         <div class="form-row">
+          <label for="schedule-recurrence">繰り返し</label>
+          <select id="schedule-recurrence" v-model="recurrenceType">
+            <option value="none">なし</option>
+            <option value="weekly">毎週</option>
+            <option value="monthly">毎月</option>
+          </select>
+        </div>
+        <div v-if="recurrenceType !== 'none'" class="form-row">
+          <label for="schedule-recurrence-end">終了日（未指定で無期限）</label>
+          <input id="schedule-recurrence-end" v-model="recurrenceEnd" type="date" />
+        </div>
+        <p v-if="isEdit && props.schedule.recurrence_type !== 'none'" class="recurrence-note">
+          繰り返し予定の編集・削除は全体に反映されます。
+        </p>
+        <div class="form-row">
           <label for="schedule-memo">メモ</label>
           <textarea id="schedule-memo" v-model="memo" rows="3"></textarea>
         </div>
@@ -41,6 +56,8 @@ const isEdit = !!props.schedule;
 const title = ref(props.schedule?.title || "");
 const date = ref(props.schedule ? props.schedule.start_datetime.slice(0, 10) : props.defaultDate || "");
 const memo = ref(props.schedule?.memo || "");
+const recurrenceType = ref(props.schedule?.recurrence_type || "none");
+const recurrenceEnd = ref(props.schedule?.recurrence_end || "");
 
 function handleSubmit() {
   emit("save", {
@@ -48,6 +65,8 @@ function handleSubmit() {
     start_datetime: `${date.value}T00:00:00`,
     end_datetime: `${date.value}T00:00:00`,
     memo: memo.value,
+    recurrence_type: recurrenceType.value,
+    recurrence_end: recurrenceType.value === "none" ? null : recurrenceEnd.value || null,
   });
 }
 </script>
