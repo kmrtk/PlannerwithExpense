@@ -18,6 +18,18 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/expenses/:year/:month",
+    name: "expenses-month",
+    component: () => import("../views/ExpensesView.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/schedules/:year/:month",
+    name: "schedule-list",
+    component: () => import("../views/ScheduleListView.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/budget/:year",
     name: "yearly-budget",
     component: () => import("../views/YearlyBudgetView.vue"),

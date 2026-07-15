@@ -2,6 +2,10 @@
   <div class="app-layout">
   <AppSidebar />
   <main>
+    <div class="month-nav" v-if="isFiltered">
+      <span class="calendar-title">{{ filterYear }}年{{ filterMonth }}月の家計簿</span>
+      <router-link class="link" :to="{ name: 'expenses' }">全期間を見る</router-link>
+    </div>
     <div class="toolbar">
       <button @click="openAddModal">＋ 支出追加</button>
       <button class="secondary" :disabled="loading" @click="exportCsv">CSVエクスポート</button>
@@ -48,18 +52,29 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import AppSidebar from "../components/AppSidebar.vue";
 import ExpenseModal from "../components/ExpenseModal.vue";
 import { createExpense, deleteExpense, listExpenses, updateExpense } from "../api/expenses";
+
+const route = useRoute();
+const filterYear = computed(() => (route.params.year ? Number(route.params.year) : null));
+const filterMonth = computed(() => (route.params.month ? Number(route.params.month) : null));
+const isFiltered = computed(() => filterYear.value !== null && filterMonth.value !== null);
 
 const expenses = ref([]);
 const showModal = ref(false);
 const editingExpense = ref(null);
 const loading = ref(true);
 
+let fetchSequence = 0;
+
 async function fetchExpenses() {
-  const { data } = await listExpenses();
+  const requestId = ++fetchSequence;
+  const params = isFiltered.value ? { year: filterYear.value, month: filterMonth.value } : {};
+  const { data } = await listExpenses(params);
+  if (requestId !== fetchSequence) return; // 古いリクエストの応答は無視(月切り替え連打時のレースコンディション対策)
   expenses.value = data;
   loading.value = false;
 }
@@ -127,5 +142,5 @@ function exportCsv() {
   URL.revokeObjectURL(url);
 }
 
-onMounted(fetchExpenses);
+watch([filterYear, filterMonth], fetchExpenses, { immediate: true });
 </script>

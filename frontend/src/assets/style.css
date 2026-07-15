@@ -22,6 +22,24 @@ body {
   background: #4a6fa5;
   color: #fff;
   padding: 20px 16px;
+  transition: width 0.15s ease;
+}
+
+.app-sidebar.collapsed {
+  width: 40px;
+  padding: 20px 8px;
+  align-items: center;
+}
+
+.sidebar-toggle {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  align-self: flex-start;
+  margin-bottom: 12px;
+  padding: 0;
 }
 
 .app-sidebar .app-title {
@@ -44,6 +62,69 @@ body {
 .app-sidebar nav a.active {
   text-decoration: underline;
   font-weight: bold;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.nav-item a {
+  flex: 1;
+}
+
+.chevron {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0 4px;
+}
+
+.nav-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: 12px;
+  margin-top: -4px;
+}
+
+.nav-tree-year {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.year-label {
+  background: none;
+  border: none;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+}
+
+.nav-tree-months {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: 12px;
+}
+
+.month-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.month-link:hover {
+  opacity: 1;
+  text-decoration: underline;
 }
 
 main {
