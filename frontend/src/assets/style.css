@@ -217,41 +217,27 @@ table.calendar-table th {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.budget-row {
+.budget-summary-row {
   margin-bottom: 8px;
   font-size: 0.85rem;
 }
 
-.budget-meter {
-  background: #eee;
-  border-radius: 4px;
-  height: 8px;
-  margin-top: 4px;
-  overflow: hidden;
+.budget-bar-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
 }
 
-.budget-meter-fill {
-  height: 100%;
-}
-
-.budget-meter-fill.income {
-  background: #4a9d5f;
-}
-
-.budget-meter-fill.expense {
-  background: #c0392b;
-}
-
-.budget-meter.over {
-  outline: 2px solid #c0392b;
-}
-
-.over-budget-badge {
+.savings-diff {
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 0.75rem;
-  background: #c0392b;
-  color: #fff;
+  font-weight: bold;
+}
+
+.savings-diff.savings-negative {
+  color: #c0392b;
 }
 
 .day-detail-box {
