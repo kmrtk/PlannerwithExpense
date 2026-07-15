@@ -1,4 +1,5 @@
 <template>
+  <div class="app-layout">
   <AppSidebar />
   <main>
     <div class="month-nav">
@@ -15,7 +16,7 @@
       <div class="budget-summary-row">収入: {{ actualIncome.toLocaleString() }}円</div>
       <div class="budget-summary-row">支出: {{ actualExpense.toLocaleString() }}円</div>
       <div class="budget-summary-row">
-        貯蓄: {{ actualSavings.toLocaleString() }}円 / 目標 {{ (budget?.savings_target ?? 0).toLocaleString() }}円
+        財務状況: {{ actualSavings.toLocaleString() }}円 / 目標 {{ (budget?.savings_target ?? 0).toLocaleString() }}円
         <span class="savings-diff" :class="{ 'savings-negative': savingsDiff < 0 }">
           差分: {{ savingsDiff >= 0 ? "+" : "" }}{{ savingsDiff.toLocaleString() }}円
         </span>
@@ -52,6 +53,7 @@
       </tbody>
     </table>
   </main>
+  </div>
 
   <DayDetailModal
     v-if="showDayDetail"

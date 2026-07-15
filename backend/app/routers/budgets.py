@@ -9,7 +9,7 @@ from app.database import get_db
 from app.models.budget import Budget
 from app.models.expense import Expense
 from app.models.user import User
-from app.schemas.budget import BudgetOut, BudgetUpsert, MonthlyBudgetSummary
+from app.schemas.budget import AllTimeSummary, BudgetOut, BudgetUpsert, MonthlyBudgetSummary
 
 router = APIRouter(prefix="/api/budgets", tags=["budgets"])
 
@@ -63,6 +63,26 @@ def get_yearly_summary(
         )
         for month in range(1, 13)
     ]
+
+
+@router.get("/all-time-summary", response_model=AllTimeSummary)
+def get_all_time_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    expenses = db.query(Expense).filter(Expense.user_id == current_user.id).all()
+    if not expenses:
+        return AllTimeSummary(start_year=None, end_year=None, total_savings=0)
+
+    years = [e.date.year for e in expenses]
+    total_income = sum(e.amount for e in expenses if e.type == "income")
+    total_expense = sum(e.amount for e in expenses if e.type != "income")
+
+    return AllTimeSummary(
+        start_year=min(years),
+        end_year=max(years),
+        total_savings=total_income - total_expense,
+    )
 
 
 @router.put("", response_model=BudgetOut)

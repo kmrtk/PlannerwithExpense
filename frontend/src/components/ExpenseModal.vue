@@ -20,18 +20,14 @@
         </div>
         <div class="form-row">
           <label for="expense-category">カテゴリ</label>
-          <input
-            id="expense-category"
-            v-model="category"
-            type="text"
-            list="expense-category-presets"
-            required
-            @focus="handleCategoryFocus"
-            @blur="handleCategoryBlur"
-          />
-          <datalist id="expense-category-presets">
-            <option v-for="preset in EXPENSE_CATEGORY_PRESETS" :key="preset" :value="preset" />
-          </datalist>
+          <select id="expense-category" v-model="selectedCategory">
+            <option v-for="preset in EXPENSE_CATEGORY_PRESETS" :key="preset" :value="preset">{{ preset }}</option>
+            <option :value="CUSTOM_OPTION">その他（自由入力）</option>
+          </select>
+        </div>
+        <div v-if="selectedCategory === CUSTOM_OPTION" class="form-row">
+          <label for="expense-category-custom">カテゴリ（自由入力）</label>
+          <input id="expense-category-custom" v-model="customCategory" type="text" required />
         </div>
         <div class="form-row">
           <label for="expense-memo">メモ</label>
@@ -54,6 +50,8 @@
 import { ref } from "vue";
 import { EXPENSE_CATEGORY_PRESETS } from "../constants/categories";
 
+const CUSTOM_OPTION = "__custom__";
+
 const props = defineProps({
   expense: { type: Object, default: null },
   defaultDate: { type: String, default: null },
@@ -64,28 +62,21 @@ const isEdit = !!props.expense;
 const type = ref(props.expense?.type || "expense");
 const amount = ref(props.expense?.amount ?? null);
 const date = ref(props.expense?.date || props.defaultDate || "");
-const category = ref(props.expense?.category || "");
 const memo = ref(props.expense?.memo || "");
 
-let categoryBeforeFocus = "";
-
-function handleCategoryFocus() {
-  categoryBeforeFocus = category.value;
-  category.value = "";
-}
-
-function handleCategoryBlur() {
-  if (!category.value) {
-    category.value = categoryBeforeFocus;
-  }
-}
+const existingCategory = props.expense?.category || "";
+const isExistingPreset = EXPENSE_CATEGORY_PRESETS.includes(existingCategory);
+const selectedCategory = ref(
+  existingCategory ? (isExistingPreset ? existingCategory : CUSTOM_OPTION) : EXPENSE_CATEGORY_PRESETS[0]
+);
+const customCategory = ref(!isExistingPreset ? existingCategory : "");
 
 function handleSubmit() {
   emit("save", {
     type: type.value,
     amount: amount.value,
     date: date.value,
-    category: category.value,
+    category: selectedCategory.value === CUSTOM_OPTION ? customCategory.value : selectedCategory.value,
     memo: memo.value,
   });
 }
