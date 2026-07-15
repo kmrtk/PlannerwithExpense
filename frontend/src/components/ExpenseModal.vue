@@ -20,7 +20,10 @@
         </div>
         <div class="form-row">
           <label for="expense-category">カテゴリ</label>
-          <input id="expense-category" v-model="category" type="text" required />
+          <input id="expense-category" v-model="category" type="text" list="expense-category-presets" required />
+          <datalist id="expense-category-presets">
+            <option v-for="preset in EXPENSE_CATEGORY_PRESETS" :key="preset" :value="preset" />
+          </datalist>
         </div>
         <div class="form-row">
           <label for="expense-memo">メモ</label>
@@ -41,6 +44,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { EXPENSE_CATEGORY_PRESETS } from "../constants/categories";
 
 const props = defineProps({
   expense: { type: Object, default: null },
