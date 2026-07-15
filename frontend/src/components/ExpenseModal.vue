@@ -26,7 +26,8 @@
             type="text"
             list="expense-category-presets"
             required
-            @focus="$event.target.select()"
+            @focus="handleCategoryFocus"
+            @blur="handleCategoryBlur"
           />
           <datalist id="expense-category-presets">
             <option v-for="preset in EXPENSE_CATEGORY_PRESETS" :key="preset" :value="preset" />
@@ -65,6 +66,19 @@ const amount = ref(props.expense?.amount ?? null);
 const date = ref(props.expense?.date || props.defaultDate || "");
 const category = ref(props.expense?.category || "");
 const memo = ref(props.expense?.memo || "");
+
+let categoryBeforeFocus = "";
+
+function handleCategoryFocus() {
+  categoryBeforeFocus = category.value;
+  category.value = "";
+}
+
+function handleCategoryBlur() {
+  if (!category.value) {
+    category.value = categoryBeforeFocus;
+  }
+}
 
 function handleSubmit() {
   emit("save", {

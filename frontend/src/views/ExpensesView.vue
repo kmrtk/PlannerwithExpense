@@ -1,5 +1,5 @@
 <template>
-  <AppHeader />
+  <AppSidebar />
   <main>
     <div class="toolbar">
       <button @click="openAddModal">＋ 支出追加</button>
@@ -47,7 +47,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import AppHeader from "../components/AppHeader.vue";
+import AppSidebar from "../components/AppSidebar.vue";
 import ExpenseModal from "../components/ExpenseModal.vue";
 import { createExpense, deleteExpense, listExpenses, updateExpense } from "../api/expenses";
 
