@@ -6,11 +6,20 @@ from sqlalchemy.orm import Session
 from app import models  # noqa: F401  (テーブル登録のためimportが必要)
 from app.database import Base, engine, get_db
 from app.main import app
+from app.rate_limit import limiter
 
 
 @pytest.fixture(scope="session", autouse=True)
 def _create_tables():
     Base.metadata.create_all(bind=engine)
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limiter():
+    # app/limiterはテストセッション全体で共有されるため、テスト間で
+    # レート制限の状態が持ち越されないようにリセットする
+    limiter.reset()
+    yield
 
 
 @pytest.fixture
