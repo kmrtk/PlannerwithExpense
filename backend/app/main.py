@@ -1,11 +1,12 @@
 import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy.exc import OperationalError
 
-from app import models  # noqa: F401  (テーブル登録のためimportが必要)
-from app.database import Base, engine
+from app.database import run_migrations
 from app.routers import auth, budgets, expenses, schedules
 
 app = FastAPI(title="PlannerwithExpense API")
@@ -19,6 +20,20 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # 既存のHTTPExceptionはdetailが文字列のため、フロントエンドが同じ形式で
+    # 表示できるようバリデーションエラーも1つの文字列にまとめて返す
+    messages = []
+    for error in exc.errors():
+        field = ".".join(str(loc) for loc in error["loc"] if loc != "body")
+        messages.append(f"{field}: {error['msg']}" if field else error["msg"])
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": " / ".join(messages)},
+    )
+
+
 @app.on_event("startup")
 def on_startup():
     # MySQLは初回起動時に一時サーバーでの初期化→本サーバーへの再起動という
@@ -27,7 +42,7 @@ def on_startup():
     last_error: Exception | None = None
     for _ in range(10):
         try:
-            Base.metadata.create_all(bind=engine)
+            run_migrations()
             return
         except OperationalError as exc:
             last_error = exc

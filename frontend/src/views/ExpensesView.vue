@@ -44,6 +44,7 @@
 
   <ExpenseModal
     v-if="showModal"
+    ref="expenseModalRef"
     :expense="editingExpense"
     @close="closeModal"
     @save="handleSave"
@@ -67,6 +68,7 @@ const expenses = ref([]);
 const showModal = ref(false);
 const editingExpense = ref(null);
 const loading = ref(true);
+const expenseModalRef = ref(null);
 
 let fetchSequence = 0;
 
@@ -95,13 +97,17 @@ function closeModal() {
 }
 
 async function handleSave(payload) {
-  if (editingExpense.value) {
-    await updateExpense(editingExpense.value.id, payload);
-  } else {
-    await createExpense(payload);
+  try {
+    if (editingExpense.value) {
+      await updateExpense(editingExpense.value.id, payload);
+    } else {
+      await createExpense(payload);
+    }
+    await fetchExpenses();
+    closeModal();
+  } catch (error) {
+    expenseModalRef.value?.setErrorMessage(error.response?.data?.detail || "保存に失敗しました");
   }
-  await fetchExpenses();
-  closeModal();
 }
 
 async function handleDelete(expense) {

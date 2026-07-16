@@ -12,7 +12,14 @@
         </div>
         <div class="form-row">
           <label for="expense-amount">金額</label>
-          <input id="expense-amount" v-model.number="amount" type="number" required />
+          <input
+            id="expense-amount"
+            v-model.number="amount"
+            type="number"
+            min="1"
+            :max="MAX_AMOUNT"
+            required
+          />
         </div>
         <div class="form-row">
           <label for="expense-date">日付</label>
@@ -27,12 +34,19 @@
         </div>
         <div v-if="selectedCategory === CUSTOM_OPTION" class="form-row">
           <label for="expense-category-custom">カテゴリ（自由入力）</label>
-          <input id="expense-category-custom" v-model="customCategory" type="text" required />
+          <input
+            id="expense-category-custom"
+            v-model="customCategory"
+            type="text"
+            :maxlength="MAX_TEXT_LENGTH"
+            required
+          />
         </div>
         <div class="form-row">
           <label for="expense-memo">メモ</label>
-          <textarea id="expense-memo" v-model="memo" rows="3"></textarea>
+          <textarea id="expense-memo" v-model="memo" rows="3" :maxlength="MAX_MEMO_LENGTH"></textarea>
         </div>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         <div class="modal-actions">
           <button v-if="isEdit" type="button" class="secondary" @click="$emit('delete')">削除</button>
           <div v-else></div>
@@ -49,6 +63,7 @@
 <script setup>
 import { ref } from "vue";
 import { EXPENSE_CATEGORY_PRESETS } from "../constants/categories";
+import { MAX_AMOUNT, MAX_TEXT_LENGTH, MAX_MEMO_LENGTH, isPositiveAmount, isNonEmptyWithinLength, isWithinLength } from "../utils/validation";
 
 const CUSTOM_OPTION = "__custom__";
 
@@ -63,6 +78,7 @@ const type = ref(props.expense?.type || "expense");
 const amount = ref(props.expense?.amount ?? null);
 const date = ref(props.expense?.date || props.defaultDate || "");
 const memo = ref(props.expense?.memo || "");
+const errorMessage = ref("");
 
 const existingCategory = props.expense?.category || "";
 const isExistingPreset = EXPENSE_CATEGORY_PRESETS.includes(existingCategory);
@@ -71,12 +87,30 @@ const selectedCategory = ref(
 );
 const customCategory = ref(!isExistingPreset ? existingCategory : "");
 
+defineExpose({ setErrorMessage: (message) => (errorMessage.value = message) });
+
 function handleSubmit() {
+  const category = selectedCategory.value === CUSTOM_OPTION ? customCategory.value : selectedCategory.value;
+
+  if (!isPositiveAmount(amount.value, MAX_AMOUNT)) {
+    errorMessage.value = `金額は1円以上${MAX_AMOUNT.toLocaleString()}円以下で入力してください`;
+    return;
+  }
+  if (!isNonEmptyWithinLength(category, MAX_TEXT_LENGTH)) {
+    errorMessage.value = "カテゴリを入力してください";
+    return;
+  }
+  if (!isWithinLength(memo.value, MAX_MEMO_LENGTH)) {
+    errorMessage.value = `メモは${MAX_MEMO_LENGTH}文字以内で入力してください`;
+    return;
+  }
+
+  errorMessage.value = "";
   emit("save", {
     type: type.value,
     amount: amount.value,
     date: date.value,
-    category: selectedCategory.value === CUSTOM_OPTION ? customCategory.value : selectedCategory.value,
+    category,
     memo: memo.value,
   });
 }

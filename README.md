@@ -64,10 +64,47 @@ docker compose exec frontend npm test
 |--------|------|--------|
 | JWT_SECRET | JWT署名用シークレット | devsecret-change-me(本番では必ず変更) |
 
+## DBマイグレーション
+
+スキーマ変更はAlembicで管理する(`backend/alembic/`)。バックエンド起動時に自動で`alembic upgrade head`が実行されるため、`docker compose up`するだけで最新スキーマが適用される。
+
+モデル(`backend/app/models/`)を変更した場合は、以下の手順でマイグレーションファイルを作成しコミットする。
+
+```
+docker compose exec backend alembic revision --autogenerate -m "変更内容の説明"
+```
+
+生成されたファイルは`backend/alembic/versions/`配下に作成される。適用はバックエンド再起動時に自動で行われる(手動で適用したい場合は`docker compose exec backend alembic upgrade head`)。
+
+> **移行時の注意**: Alembic導入前に`create_all()`で作成された(Alembic管理外の)DBが残っている環境では、次回`docker compose up`前に一度だけ`docker compose down -v`でボリュームを削除してから起動すること。以降はマイグレーションで管理されるため`down -v`は不要になる。
+
+## 入力バリデーション
+
+金額・自由入力テキストに対するバリデーションをバックエンド・フロントエンド両方に実装している。
+
+- 金額系フィールド(支出・収入の金額、貯蓄目標): マイナス・ゼロを禁止し、上限値を設定
+- 自由入力フィールド(カテゴリ・タイトル・メモ): 文字数制限(DBカラムサイズと整合)、前後の空白除去、空文字を禁止
+- 予定の開始日時・終了日時・繰り返し終了日の前後関係チェック
+- バックエンドのバリデーションエラー(422)は、既存の`HTTPException`と同じ形式(`detail`が文字列)で返るよう統一し、フロントエンドの各モーダルで保存失敗時にエラーメッセージを表示する
+
+検証内容・結果は[docs/input-validation-test.md](docs/input-validation-test.md)を参照。
+
+## テスト
+
+バックエンド(pytest)・フロントエンド(vitest)ともに自動テストを導入している。
+
+- バックエンド: ユーザー登録・ログイン、所有者スコープ(他ユーザーのデータが見えないこと)のテスト。テスト用のDB接続はSQLite等の代替ではなく、アプリの通常のDB設定(実質MySQL)を使用し、テストごとにトランザクションをロールバックすることで実DBを汚さない
+- フロントエンド: `scheduleOccursOnDate`(`frontend/src/utils/recurrence.js`)などの純粋関数の単体テスト
+
+```
+docker compose exec backend pytest
+docker compose exec frontend npm test
+```
+
+検証内容・結果は[docs/test.md](docs/test.md)を参照。
+
 ## 今後の課題
 
-- Alembicによるマイグレーション管理の導入(現状はスキーマ変更のたびに`docker compose down -v`でDBを再作成している)
-- 入力バリデーションの強化
 - AWS環境へのデプロイ
 
 開発中に発生した問題と対処法は[docs/07_troubleshooting.md](docs/07_troubleshooting.md)を参照。
