@@ -12,6 +12,7 @@ class ExpenseCreate(BaseModel):
     date: date
     category: str = Field(min_length=1, max_length=255)
     memo: str | None = Field(default=None, max_length=1000)
+    schedule_id: int | None = None
 
     @field_validator("category")
     @classmethod
@@ -40,4 +41,5 @@ class ExpenseOut(BaseModel):
     date: date
     category: str
     memo: str | None
+    schedule_id: int | None
     created_at: datetime

@@ -43,6 +43,15 @@
           />
         </div>
         <div class="form-row">
+          <label for="expense-schedule">紐付ける予定（任意）</label>
+          <select id="expense-schedule" v-model="scheduleId">
+            <option :value="null">なし</option>
+            <option v-for="schedule in scheduleOptions" :key="schedule.id" :value="schedule.id">
+              {{ schedule.title }}
+            </option>
+          </select>
+        </div>
+        <div class="form-row">
           <label for="expense-memo">メモ</label>
           <textarea id="expense-memo" v-model="memo" rows="3" :maxlength="MAX_MEMO_LENGTH"></textarea>
         </div>
@@ -70,6 +79,7 @@ const CUSTOM_OPTION = "__custom__";
 const props = defineProps({
   expense: { type: Object, default: null },
   defaultDate: { type: String, default: null },
+  scheduleOptions: { type: Array, default: () => [] },
 });
 const emit = defineEmits(["close", "save", "delete"]);
 
@@ -78,6 +88,7 @@ const type = ref(props.expense?.type || "expense");
 const amount = ref(props.expense?.amount ?? null);
 const date = ref(props.expense?.date || props.defaultDate || "");
 const memo = ref(props.expense?.memo || "");
+const scheduleId = ref(props.expense?.schedule_id ?? null);
 const errorMessage = ref("");
 
 const existingCategory = props.expense?.category || "";
@@ -112,6 +123,7 @@ function handleSubmit() {
     date: date.value,
     category,
     memo: memo.value,
+    schedule_id: scheduleId.value || null,
   });
 }
 </script>

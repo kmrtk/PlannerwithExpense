@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import get_current_user
 from app.database import get_db
 from app.models.expense import Expense
+from app.models.schedule import Schedule
 from app.models.user import User
 from app.schemas.expense import ExpenseCreate, ExpenseOut, ExpenseUpdate
 
@@ -29,6 +30,18 @@ def _get_owned_expense(expense_id: int, db: Session, current_user: User) -> Expe
     return expense
 
 
+def _validate_schedule_ownership(schedule_id: int | None, db: Session, current_user: User) -> None:
+    if schedule_id is None:
+        return
+    schedule = (
+        db.query(Schedule)
+        .filter(Schedule.id == schedule_id, Schedule.user_id == current_user.id)
+        .first()
+    )
+    if schedule is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="予定が見つかりません")
+
+
 @router.get("", response_model=list[ExpenseOut])
 def list_expenses(
     year: int | None = None,
@@ -49,6 +62,7 @@ def create_expense(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    _validate_schedule_ownership(payload.schedule_id, db, current_user)
     expense = Expense(**payload.model_dump(), user_id=current_user.id)
     db.add(expense)
     db.commit()
@@ -64,6 +78,7 @@ def update_expense(
     current_user: User = Depends(get_current_user),
 ):
     expense = _get_owned_expense(expense_id, db, current_user)
+    _validate_schedule_ownership(payload.schedule_id, db, current_user)
     for key, value in payload.model_dump().items():
         setattr(expense, key, value)
     db.commit()
