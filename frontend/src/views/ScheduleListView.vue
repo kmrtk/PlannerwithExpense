@@ -41,6 +41,7 @@
 
   <ScheduleModal
     v-if="showScheduleModal"
+    ref="scheduleModalRef"
     :schedule="editingSchedule"
     :default-date="prefilledDate"
     @close="closeScheduleModal"
@@ -65,6 +66,7 @@ const schedules = ref([]);
 const showScheduleModal = ref(false);
 const editingSchedule = ref(null);
 const prefilledDate = ref(null);
+const scheduleModalRef = ref(null);
 
 function pad(n) {
   return String(n).padStart(2, "0");
@@ -128,13 +130,17 @@ function closeScheduleModal() {
 }
 
 async function handleSaveSchedule(payload) {
-  if (editingSchedule.value) {
-    await updateSchedule(editingSchedule.value.id, payload);
-  } else {
-    await createSchedule(payload);
+  try {
+    if (editingSchedule.value) {
+      await updateSchedule(editingSchedule.value.id, payload);
+    } else {
+      await createSchedule(payload);
+    }
+    await fetchSchedules();
+    closeScheduleModal();
+  } catch (error) {
+    scheduleModalRef.value?.setErrorMessage(error.response?.data?.detail || "保存に失敗しました");
   }
-  await fetchSchedules();
-  closeScheduleModal();
 }
 
 async function handleDeleteScheduleFromModal() {

@@ -1,7 +1,9 @@
 import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy.exc import OperationalError
 
 from app.database import run_migrations
@@ -16,6 +18,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # 既存のHTTPExceptionはdetailが文字列のため、フロントエンドが同じ形式で
+    # 表示できるようバリデーションエラーも1つの文字列にまとめて返す
+    messages = []
+    for error in exc.errors():
+        field = ".".join(str(loc) for loc in error["loc"] if loc != "body")
+        messages.append(f"{field}: {error['msg']}" if field else error["msg"])
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": " / ".join(messages)},
+    )
 
 
 @app.on_event("startup")
