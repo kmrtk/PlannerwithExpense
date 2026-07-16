@@ -44,6 +44,20 @@ docker compose up --build
 - フロントエンド: http://localhost:5173
 - バックエンドAPI(Swagger UI): http://localhost:8000/docs
 
+## テスト実行方法
+
+バックエンド(pytest、実際のMySQLに接続してテストごとにトランザクションをロールバックする):
+
+```
+docker compose exec backend pytest
+```
+
+フロントエンド(vitest):
+
+```
+docker compose exec frontend npm test
+```
+
 ## 環境変数
 
 | 変数名 | 説明 | 既定値 |
