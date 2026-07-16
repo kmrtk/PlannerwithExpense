@@ -41,3 +41,36 @@ def test_login_with_wrong_password_fails(client):
         json={"email": "dave@example.com", "password": "wrong-password"},
     )
     assert response.status_code == 401
+
+
+def test_login_rate_limited_after_too_many_attempts(client):
+    register_user(client, "eve@example.com", password="correct-password")
+
+    for _ in range(5):
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "eve@example.com", "password": "wrong-password"},
+        )
+        assert response.status_code == 401
+
+    response = client.post(
+        "/api/auth/login",
+        json={"email": "eve@example.com", "password": "wrong-password"},
+    )
+    assert response.status_code == 429
+    assert "detail" in response.json()
+
+
+def test_register_rate_limited_after_too_many_attempts(client):
+    for i in range(3):
+        response = client.post(
+            "/api/auth/register",
+            json={"email": f"spam{i}@example.com", "password": "password123"},
+        )
+        assert response.status_code == 201
+
+    response = client.post(
+        "/api/auth/register",
+        json={"email": "spam-overflow@example.com", "password": "password123"},
+    )
+    assert response.status_code == 429

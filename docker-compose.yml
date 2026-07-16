@@ -25,6 +25,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-devsecret-change-me}
       JWT_ALGORITHM: HS256
       JWT_EXPIRE_MINUTES: 60
+      ENVIRONMENT: ${ENVIRONMENT:-development}
     depends_on:
       mysql:
         condition: service_healthy
