@@ -44,6 +44,20 @@ docker compose up --build
 - フロントエンド: http://localhost:5173
 - バックエンドAPI(Swagger UI): http://localhost:8000/docs
 
+## テスト実行方法
+
+バックエンド(pytest、実際のMySQLに接続してテストごとにトランザクションをロールバックする):
+
+```
+docker compose exec backend pytest
+```
+
+フロントエンド(vitest):
+
+```
+docker compose exec frontend npm test
+```
+
 ## 環境変数
 
 | 変数名 | 説明 | 既定値 |
@@ -54,7 +68,6 @@ docker compose up --build
 
 - Alembicによるマイグレーション管理の導入(現状はスキーマ変更のたびに`docker compose down -v`でDBを再作成している)
 - 入力バリデーションの強化
-- テスト導入(backend: pytest、frontend: vitest)
 - AWS環境へのデプロイ
 
 開発中に発生した問題と対処法は[docs/07_troubleshooting.md](docs/07_troubleshooting.md)を参照。
