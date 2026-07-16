@@ -3,4 +3,7 @@ dist/
 __pycache__/
 *.pyc
 .env
-.claude-notes/
+.claude-notes/*
+!.claude-notes/alembic
+!.claude-notes/validation
+!.claude-notes/tests
