@@ -112,6 +112,7 @@ import { createSchedule, deleteSchedule, listSchedules, updateSchedule } from ".
 import { createExpense, deleteExpense, listExpenses, updateExpense } from "../api/expenses";
 import { getBudget, upsertBudget } from "../api/budgets";
 import { scheduleOccursOnDate } from "../utils/recurrence";
+import { dateKey, getWeekDates } from "../utils/date";
 
 const weekLabels = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -173,15 +174,7 @@ const weeks = computed(() => {
 const viewMode = ref("month");
 const anchorDate = ref(new Date(today.getFullYear(), today.getMonth(), today.getDate()));
 
-const visibleWeek = computed(() => {
-  const start = new Date(anchorDate.value);
-  start.setDate(start.getDate() - start.getDay());
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    return d;
-  });
-});
+const visibleWeek = computed(() => getWeekDates(anchorDate.value));
 
 const rowsToRender = computed(() => (viewMode.value === "week" ? [visibleWeek.value] : weeks.value));
 
@@ -193,13 +186,6 @@ const navTitle = computed(() => {
   const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
   return `${fmt(first)} 〜 ${fmt(last)}`;
 });
-
-function dateKey(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
 
 function schedulesForDay(day) {
   const key = dateKey(day);

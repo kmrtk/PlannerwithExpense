@@ -2,12 +2,30 @@
   <div class="app-layout">
   <AppSidebar />
   <main>
-    <div class="month-nav" v-if="isFiltered">
-      <span class="calendar-title">{{ filterYear }}年{{ filterMonth }}月の家計簿</span>
-      <router-link class="link" :to="{ name: 'expenses' }">全期間を見る</router-link>
+    <div class="month-nav">
+      <template v-if="displayMode === 'week'">
+        <button class="link" @click="goToPrevWeek">← 前週</button>
+        <span class="calendar-title">{{ weekRangeLabel }}の家計簿</span>
+        <button class="link" @click="goToNextWeek">次週 →</button>
+      </template>
+      <template v-else-if="isFiltered">
+        <span class="calendar-title">{{ filterYear }}年{{ filterMonth }}月の家計簿</span>
+        <router-link class="link" :to="{ name: 'expenses' }">全期間を見る</router-link>
+      </template>
+      <div class="view-mode-toggle">
+        <button :class="{ active: displayMode === 'month' }" class="secondary" @click="displayMode = 'month'">月</button>
+        <button :class="{ active: displayMode === 'week' }" class="secondary" @click="displayMode = 'week'">週</button>
+      </div>
     </div>
     <div class="toolbar">
       <button @click="openAddModal">＋ 支出追加</button>
+      <select v-model="sortOrder">
+        <option value="date_desc">日付が新しい順</option>
+        <option value="date_asc">日付が古い順</option>
+        <option value="income_only">黒字のみ抽出</option>
+        <option value="expense_only">赤字のみ抽出</option>
+      </select>
+      <button class="secondary" @click="resetSort">並び替えをリセット</button>
       <button class="secondary" :disabled="loading" @click="exportCsv">CSVエクスポート</button>
     </div>
     <table class="data-table">
@@ -22,7 +40,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="expense in expenses" :key="expense.id">
+        <tr v-for="expense in sortedExpenses" :key="expense.id">
           <td>{{ expense.date }}</td>
           <td>
             <span :class="['type-badge', expense.type]">{{ expense.type === "income" ? "収入" : "支出" }}</span>
@@ -58,6 +76,7 @@ import { useRoute } from "vue-router";
 import AppSidebar from "../components/AppSidebar.vue";
 import ExpenseModal from "../components/ExpenseModal.vue";
 import { createExpense, deleteExpense, listExpenses, updateExpense } from "../api/expenses";
+import { dateKey, getWeekDates } from "../utils/date";
 
 const route = useRoute();
 const filterYear = computed(() => (route.params.year ? Number(route.params.year) : null));
@@ -69,6 +88,59 @@ const showModal = ref(false);
 const editingExpense = ref(null);
 const loading = ref(true);
 const expenseModalRef = ref(null);
+const sortOrder = ref("date_desc");
+const displayMode = ref("month");
+
+function defaultWeekAnchor() {
+  return isFiltered.value ? new Date(filterYear.value, filterMonth.value - 1, 1) : new Date();
+}
+
+const weekAnchor = ref(defaultWeekAnchor());
+
+const weekDates = computed(() => getWeekDates(weekAnchor.value));
+const weekRangeLabel = computed(() => {
+  const [first, last] = [weekDates.value[0], weekDates.value[6]];
+  const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
+  return `${fmt(first)} 〜 ${fmt(last)}`;
+});
+
+const weekFilteredExpenses = computed(() => {
+  if (displayMode.value !== "week") return expenses.value;
+  const startKey = dateKey(weekDates.value[0]);
+  const endKey = dateKey(weekDates.value[6]);
+  return expenses.value.filter((e) => e.date >= startKey && e.date <= endKey);
+});
+
+const sortedExpenses = computed(() => {
+  const list = [...weekFilteredExpenses.value];
+  switch (sortOrder.value) {
+    case "date_asc":
+      return list.sort((a, b) => a.date.localeCompare(b.date));
+    case "income_only":
+      return list.filter((e) => e.type === "income").sort((a, b) => b.date.localeCompare(a.date));
+    case "expense_only":
+      return list.filter((e) => e.type === "expense").sort((a, b) => b.date.localeCompare(a.date));
+    case "date_desc":
+    default:
+      return list.sort((a, b) => b.date.localeCompare(a.date));
+  }
+});
+
+function resetSort() {
+  sortOrder.value = "date_desc";
+}
+
+function goToPrevWeek() {
+  const d = new Date(weekAnchor.value);
+  d.setDate(d.getDate() - 7);
+  weekAnchor.value = d;
+}
+
+function goToNextWeek() {
+  const d = new Date(weekAnchor.value);
+  d.setDate(d.getDate() + 7);
+  weekAnchor.value = d;
+}
 
 let fetchSequence = 0;
 
@@ -148,5 +220,9 @@ function exportCsv() {
   URL.revokeObjectURL(url);
 }
 
-watch([filterYear, filterMonth], fetchExpenses, { immediate: true });
+watch([filterYear, filterMonth], () => {
+  displayMode.value = "month";
+  weekAnchor.value = defaultWeekAnchor();
+  fetchExpenses();
+}, { immediate: true });
 </script>
