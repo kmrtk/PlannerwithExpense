@@ -4,8 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import OperationalError
 
-from app import models  # noqa: F401  (テーブル登録のためimportが必要)
-from app.database import Base, engine
+from app.database import run_migrations
 from app.routers import auth, budgets, expenses, schedules
 
 app = FastAPI(title="PlannerwithExpense API")
@@ -27,7 +26,7 @@ def on_startup():
     last_error: Exception | None = None
     for _ in range(10):
         try:
-            Base.metadata.create_all(bind=engine)
+            run_migrations()
             return
         except OperationalError as exc:
             last_error = exc
