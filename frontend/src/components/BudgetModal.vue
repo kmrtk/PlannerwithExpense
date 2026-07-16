@@ -5,8 +5,16 @@
       <form @submit.prevent="handleSubmit">
         <div class="form-row">
           <label for="budget-savings">貯蓄目標</label>
-          <input id="budget-savings" v-model.number="savingsTarget" type="number" required />
+          <input
+            id="budget-savings"
+            v-model.number="savingsTarget"
+            type="number"
+            min="0"
+            :max="MAX_AMOUNT"
+            required
+          />
         </div>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         <div class="modal-actions">
           <div></div>
           <div class="right-actions">
@@ -21,6 +29,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { MAX_AMOUNT, isNonNegativeAmount } from "../utils/validation";
 
 const props = defineProps({
   budget: { type: Object, default: null },
@@ -30,8 +39,17 @@ const props = defineProps({
 const emit = defineEmits(["close", "save"]);
 
 const savingsTarget = ref(props.budget?.savings_target ?? 0);
+const errorMessage = ref("");
+
+defineExpose({ setErrorMessage: (message) => (errorMessage.value = message) });
 
 function handleSubmit() {
+  if (!isNonNegativeAmount(savingsTarget.value, MAX_AMOUNT)) {
+    errorMessage.value = `貯蓄目標は0円以上${MAX_AMOUNT.toLocaleString()}円以下で入力してください`;
+    return;
+  }
+
+  errorMessage.value = "";
   emit("save", {
     savings_target: savingsTarget.value,
   });

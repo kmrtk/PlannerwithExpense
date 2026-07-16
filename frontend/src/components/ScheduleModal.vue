@@ -5,7 +5,7 @@
       <form @submit.prevent="handleSubmit">
         <div class="form-row">
           <label for="schedule-title">タイトル</label>
-          <input id="schedule-title" v-model="title" type="text" required />
+          <input id="schedule-title" v-model="title" type="text" :maxlength="MAX_TEXT_LENGTH" required />
         </div>
         <div class="form-row">
           <label for="schedule-date">日付</label>
@@ -21,15 +21,16 @@
         </div>
         <div v-if="recurrenceType !== 'none'" class="form-row">
           <label for="schedule-recurrence-end">終了日（未指定で無期限）</label>
-          <input id="schedule-recurrence-end" v-model="recurrenceEnd" type="date" />
+          <input id="schedule-recurrence-end" v-model="recurrenceEnd" type="date" :min="date" />
         </div>
         <p v-if="isEdit && props.schedule.recurrence_type !== 'none'" class="recurrence-note">
           繰り返し予定の編集・削除は全体に反映されます。
         </p>
         <div class="form-row">
           <label for="schedule-memo">メモ</label>
-          <textarea id="schedule-memo" v-model="memo" rows="3"></textarea>
+          <textarea id="schedule-memo" v-model="memo" rows="3" :maxlength="MAX_MEMO_LENGTH"></textarea>
         </div>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         <div class="modal-actions">
           <button v-if="isEdit" type="button" class="secondary" @click="$emit('delete')">削除</button>
           <div v-else></div>
@@ -45,6 +46,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { MAX_TEXT_LENGTH, MAX_MEMO_LENGTH, isNonEmptyWithinLength, isWithinLength } from "../utils/validation";
 
 const props = defineProps({
   schedule: { type: Object, default: null },
@@ -58,8 +60,25 @@ const date = ref(props.schedule ? props.schedule.start_datetime.slice(0, 10) : p
 const memo = ref(props.schedule?.memo || "");
 const recurrenceType = ref(props.schedule?.recurrence_type || "none");
 const recurrenceEnd = ref(props.schedule?.recurrence_end || "");
+const errorMessage = ref("");
+
+defineExpose({ setErrorMessage: (message) => (errorMessage.value = message) });
 
 function handleSubmit() {
+  if (!isNonEmptyWithinLength(title.value, MAX_TEXT_LENGTH)) {
+    errorMessage.value = "タイトルを入力してください";
+    return;
+  }
+  if (!isWithinLength(memo.value, MAX_MEMO_LENGTH)) {
+    errorMessage.value = `メモは${MAX_MEMO_LENGTH}文字以内で入力してください`;
+    return;
+  }
+  if (recurrenceType.value !== "none" && recurrenceEnd.value && recurrenceEnd.value < date.value) {
+    errorMessage.value = "繰り返し終了日は開始日以降にしてください";
+    return;
+  }
+
+  errorMessage.value = "";
   emit("save", {
     title: title.value,
     start_datetime: `${date.value}T00:00:00`,

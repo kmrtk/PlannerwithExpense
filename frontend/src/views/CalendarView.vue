@@ -71,6 +71,7 @@
 
   <ScheduleModal
     v-if="showScheduleModal"
+    ref="scheduleModalRef"
     :schedule="editingSchedule"
     :default-date="prefilledDate"
     @close="closeScheduleModal"
@@ -80,6 +81,7 @@
 
   <ExpenseModal
     v-if="showExpenseModal"
+    ref="expenseModalRef"
     :expense="editingExpense"
     :default-date="prefilledDate"
     @close="closeExpenseModal"
@@ -89,6 +91,7 @@
 
   <BudgetModal
     v-if="showBudgetModal"
+    ref="budgetModalRef"
     :budget="budget"
     :year="displayYear"
     :month="displayMonth"
@@ -126,6 +129,9 @@ const editingExpense = ref(null);
 const prefilledDate = ref(null);
 const detailDate = ref(null);
 const showBudgetModal = ref(false);
+const scheduleModalRef = ref(null);
+const expenseModalRef = ref(null);
+const budgetModalRef = ref(null);
 
 const showDayDetail = computed(() => !!detailDate.value && !showScheduleModal.value && !showExpenseModal.value);
 const detailSchedules = computed(() =>
@@ -307,13 +313,17 @@ function closeScheduleModal() {
 }
 
 async function handleSaveSchedule(payload) {
-  if (editingSchedule.value) {
-    await updateSchedule(editingSchedule.value.id, payload);
-  } else {
-    await createSchedule(payload);
+  try {
+    if (editingSchedule.value) {
+      await updateSchedule(editingSchedule.value.id, payload);
+    } else {
+      await createSchedule(payload);
+    }
+    await fetchMonthData();
+    closeScheduleModal();
+  } catch (error) {
+    scheduleModalRef.value?.setErrorMessage(error.response?.data?.detail || "保存に失敗しました");
   }
-  await fetchMonthData();
-  closeScheduleModal();
 }
 
 async function handleDeleteScheduleFromModal() {
@@ -348,13 +358,17 @@ function closeExpenseModal() {
 }
 
 async function handleSaveExpense(payload) {
-  if (editingExpense.value) {
-    await updateExpense(editingExpense.value.id, payload);
-  } else {
-    await createExpense(payload);
+  try {
+    if (editingExpense.value) {
+      await updateExpense(editingExpense.value.id, payload);
+    } else {
+      await createExpense(payload);
+    }
+    await fetchMonthData();
+    closeExpenseModal();
+  } catch (error) {
+    expenseModalRef.value?.setErrorMessage(error.response?.data?.detail || "保存に失敗しました");
   }
-  await fetchMonthData();
-  closeExpenseModal();
 }
 
 async function handleDeleteExpenseFromModal() {
@@ -372,9 +386,13 @@ async function handleDeleteExpense(expense) {
 }
 
 async function handleSaveBudget(payload) {
-  const { data } = await upsertBudget({ year: displayYear.value, month: displayMonth.value, ...payload });
-  budget.value = data;
-  showBudgetModal.value = false;
+  try {
+    const { data } = await upsertBudget({ year: displayYear.value, month: displayMonth.value, ...payload });
+    budget.value = data;
+    showBudgetModal.value = false;
+  } catch (error) {
+    budgetModalRef.value?.setErrorMessage(error.response?.data?.detail || "保存に失敗しました");
+  }
 }
 
 watch([displayYear, displayMonth], fetchMonthData, { immediate: true });
