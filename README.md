@@ -63,6 +63,9 @@ docker compose exec frontend npm test
 | 変数名 | 説明 | 既定値 |
 |--------|------|--------|
 | JWT_SECRET | JWT署名用シークレット | devsecret-change-me(本番では必ず変更) |
+| ENVIRONMENT | 実行環境(development/production) | development |
+
+`ENVIRONMENT=production`かつ`JWT_SECRET`が既定値のままの場合、起動時にエラーとなりアプリが立ち上がらない(既知の値でのトークン偽造を防ぐため)。他人がアクセスできる環境にデプロイする際は、`JWT_SECRET`を強力な値に変更した上で`ENVIRONMENT=production`を設定すること。
 
 ## DBマイグレーション
 
@@ -102,6 +105,11 @@ docker compose exec frontend npm test
 ```
 
 検証内容・結果は[docs/test.md](docs/test.md)を参照。
+
+## セキュリティ
+
+- ログイン・登録API(`/api/auth/login`・`/api/auth/register`)には`slowapi`によるIPベースのレート制限を設定している(login: 5回/分、register: 3回/分)。上限を超えると429を返す
+- JWT_SECRETについては上記「環境変数」を参照
 
 ## 今後の課題
 
