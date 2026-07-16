@@ -84,6 +84,7 @@
     ref="expenseModalRef"
     :expense="editingExpense"
     :default-date="prefilledDate"
+    :schedule-options="expenseScheduleOptions"
     @close="closeExpenseModal"
     @save="handleSaveExpense"
     @delete="handleDeleteExpenseFromModal"
@@ -140,6 +141,10 @@ const detailSchedules = computed(() =>
 const detailExpenses = computed(() =>
   detailDate.value ? expenses.value.filter((e) => e.date === detailDate.value) : []
 );
+const expenseScheduleOptions = computed(() => {
+  const targetDate = editingExpense.value?.date || prefilledDate.value;
+  return targetDate ? schedules.value.filter((s) => scheduleOccursOnDate(s, targetDate)) : [];
+});
 
 const actualIncome = computed(() =>
   expenses.value.filter((e) => e.type === "income").reduce((sum, e) => sum + e.amount, 0)
