@@ -1,7 +1,7 @@
 <template>
   <div class="modal-overlay open">
     <div class="modal-box">
-      <h2>{{ year }}年{{ month }}月の予算を設定</h2>
+      <h2>{{ year }}年{{ month }}月の貯蓄目標を設定</h2>
       <form @submit.prevent="handleSubmit">
         <div class="form-row">
           <label for="budget-savings">貯蓄目標</label>

@@ -25,7 +25,7 @@
         <router-link class="link" :to="{ name: 'yearly-budget', params: { year: displayYear } }">
           {{ displayYear }}年の累計を見る
         </router-link>
-        <button class="secondary" @click="showBudgetModal = true">予算を設定</button>
+        <button class="secondary" @click="showBudgetModal = true">貯蓄目標を設定</button>
       </div>
     </div>
 
