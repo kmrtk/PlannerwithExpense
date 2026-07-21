@@ -86,6 +86,7 @@ async function fetchAllTimeSummary() {
   try {
     const { data } = await getAllTimeSummary();
     allTime.value = data;
+    loadError.value = "";
   } catch (error) {
     loadError.value = error.response?.data?.detail || "データの取得に失敗しました";
   }
