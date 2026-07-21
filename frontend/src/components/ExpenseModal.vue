@@ -12,14 +12,30 @@
         </div>
         <div class="form-row">
           <label for="expense-amount">金額</label>
-          <input
-            id="expense-amount"
-            v-model.number="amount"
-            type="number"
-            min="1"
-            :max="MAX_AMOUNT"
-            required
-          />
+          <div class="amount-input-row">
+            <input
+              id="expense-amount"
+              v-model.number="amount"
+              type="number"
+              min="1"
+              :max="MAX_AMOUNT"
+              required
+            />
+            <button
+              type="button"
+              class="calculator-toggle-btn"
+              aria-label="電卓を開く"
+              @click="showCalculator = !showCalculator"
+            >
+              電卓
+            </button>
+            <CalculatorPopup
+              v-if="showCalculator"
+              :model-value="amount"
+              @update:model-value="amount = $event"
+              @close="showCalculator = false"
+            />
+          </div>
         </div>
         <div class="form-row">
           <label for="expense-date">日付</label>
@@ -71,6 +87,7 @@
 
 <script setup>
 import { ref } from "vue";
+import CalculatorPopup from "./CalculatorPopup.vue";
 import { EXPENSE_CATEGORY_PRESETS } from "../constants/categories";
 import { MAX_AMOUNT, MAX_TEXT_LENGTH, MAX_MEMO_LENGTH, isPositiveAmount, isNonEmptyWithinLength, isWithinLength } from "../utils/validation";
 
@@ -90,6 +107,7 @@ const date = ref(props.expense?.date || props.defaultDate || "");
 const memo = ref(props.expense?.memo || "");
 const scheduleId = ref(props.expense?.schedule_id ?? null);
 const errorMessage = ref("");
+const showCalculator = ref(false);
 
 const existingCategory = props.expense?.category || "";
 const isExistingPreset = EXPENSE_CATEGORY_PRESETS.includes(existingCategory);
