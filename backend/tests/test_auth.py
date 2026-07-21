@@ -28,13 +28,13 @@ def test_register_with_duplicate_email_fails(client):
 
     response = client.post(
         "/api/auth/register",
-        json={"email": "carol@example.com", "password": "another-password"},
+        json={"email": "carol@example.com", "password": "another-password1"},
     )
     assert response.status_code == 400
 
 
 def test_login_with_wrong_password_fails(client):
-    register_user(client, "dave@example.com", password="correct-password")
+    register_user(client, "dave@example.com", password="correct-password1")
 
     response = client.post(
         "/api/auth/login",
@@ -44,7 +44,7 @@ def test_login_with_wrong_password_fails(client):
 
 
 def test_login_rate_limited_after_too_many_attempts(client):
-    register_user(client, "eve@example.com", password="correct-password")
+    register_user(client, "eve@example.com", password="correct-password1")
 
     for _ in range(5):
         response = client.post(
@@ -74,3 +74,27 @@ def test_register_rate_limited_after_too_many_attempts(client):
         json={"email": "spam-overflow@example.com", "password": "password123"},
     )
     assert response.status_code == 429
+
+
+def test_register_with_short_password_fails(client):
+    response = client.post(
+        "/api/auth/register",
+        json={"email": "short-pw@example.com", "password": "abc123"},
+    )
+    assert response.status_code == 422
+
+
+def test_register_with_letters_only_password_fails(client):
+    response = client.post(
+        "/api/auth/register",
+        json={"email": "letters-only@example.com", "password": "abcdefgh"},
+    )
+    assert response.status_code == 422
+
+
+def test_register_with_digits_only_password_fails(client):
+    response = client.post(
+        "/api/auth/register",
+        json={"email": "digits-only@example.com", "password": "12345678"},
+    )
+    assert response.status_code == 422
