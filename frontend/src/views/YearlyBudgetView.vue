@@ -2,6 +2,7 @@
   <div class="app-layout">
   <AppSidebar />
   <main>
+    <p v-if="loadError" class="error-message">{{ loadError }}</p>
     <p v-if="allTime.start_year" class="financial-summary-line">
       累計財務状況（{{ allTime.start_year }}年〜{{ allTime.end_year }}年）：
       <span class="savings-diff" :class="{ 'savings-negative': allTime.total_savings < 0 }">
@@ -64,19 +65,30 @@ const route = useRoute();
 const year = computed(() => Number(route.params.year));
 const summary = ref([]);
 const allTime = ref({ start_year: null, end_year: null, total_savings: 0 });
+const loadError = ref("");
 
 let fetchSequence = 0;
 
 async function fetchYearData() {
   const requestId = ++fetchSequence;
-  const { data } = await getYearlySummary(year.value);
-  if (requestId !== fetchSequence) return; // 古いリクエストの応答は無視(年送り連打時のレースコンディション対策)
-  summary.value = data;
+  try {
+    const { data } = await getYearlySummary(year.value);
+    if (requestId !== fetchSequence) return; // 古いリクエストの応答は無視(年送り連打時のレースコンディション対策)
+    summary.value = data;
+    loadError.value = "";
+  } catch (error) {
+    if (requestId !== fetchSequence) return;
+    loadError.value = error.response?.data?.detail || "データの取得に失敗しました";
+  }
 }
 
 async function fetchAllTimeSummary() {
-  const { data } = await getAllTimeSummary();
-  allTime.value = data;
+  try {
+    const { data } = await getAllTimeSummary();
+    allTime.value = data;
+  } catch (error) {
+    loadError.value = error.response?.data?.detail || "データの取得に失敗しました";
+  }
 }
 
 const rows = computed(() => {

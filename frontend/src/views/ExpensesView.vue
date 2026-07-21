@@ -2,6 +2,7 @@
   <div class="app-layout">
   <AppSidebar />
   <main>
+    <p v-if="loadError" class="error-message">{{ loadError }}</p>
     <div class="month-nav">
       <template v-if="displayMode === 'week'">
         <button class="link" @click="goToPrevWeek">← 前週</button>
@@ -90,6 +91,7 @@ const loading = ref(true);
 const expenseModalRef = ref(null);
 const sortOrder = ref("date_desc");
 const displayMode = ref("month");
+const loadError = ref("");
 
 function defaultWeekAnchor() {
   return isFiltered.value ? new Date(filterYear.value, filterMonth.value - 1, 1) : new Date();
@@ -147,10 +149,17 @@ let fetchSequence = 0;
 async function fetchExpenses() {
   const requestId = ++fetchSequence;
   const params = isFiltered.value ? { year: filterYear.value, month: filterMonth.value } : {};
-  const { data } = await listExpenses(params);
-  if (requestId !== fetchSequence) return; // 古いリクエストの応答は無視(月切り替え連打時のレースコンディション対策)
-  expenses.value = data;
-  loading.value = false;
+  try {
+    const { data } = await listExpenses(params);
+    if (requestId !== fetchSequence) return; // 古いリクエストの応答は無視(月切り替え連打時のレースコンディション対策)
+    expenses.value = data;
+    loading.value = false;
+    loadError.value = "";
+  } catch (error) {
+    if (requestId !== fetchSequence) return;
+    loading.value = false;
+    loadError.value = error.response?.data?.detail || "データの取得に失敗しました";
+  }
 }
 
 function openAddModal() {

@@ -2,6 +2,7 @@
   <div class="app-layout">
   <AppSidebar />
   <main>
+    <p v-if="loadError" class="error-message">{{ loadError }}</p>
     <div class="month-nav">
       <router-link class="link" :to="prevTarget">← 前月</router-link>
       <span class="calendar-title">{{ year }}年{{ month }}月</span>
@@ -67,6 +68,7 @@ const showScheduleModal = ref(false);
 const editingSchedule = ref(null);
 const prefilledDate = ref(null);
 const scheduleModalRef = ref(null);
+const loadError = ref("");
 
 function pad(n) {
   return String(n).padStart(2, "0");
@@ -74,8 +76,13 @@ function pad(n) {
 
 async function fetchSchedules() {
   // listSchedules()はパラメータを取らず常に全件を返すため、レースコンディションの心配はない
-  const { data } = await listSchedules();
-  schedules.value = data;
+  try {
+    const { data } = await listSchedules();
+    schedules.value = data;
+    loadError.value = "";
+  } catch (error) {
+    loadError.value = error.response?.data?.detail || "データの取得に失敗しました";
+  }
 }
 
 const entries = computed(() => {
