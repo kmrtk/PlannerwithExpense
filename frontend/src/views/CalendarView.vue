@@ -2,6 +2,7 @@
   <div class="app-layout">
   <AppSidebar />
   <main>
+    <p v-if="loadError" class="error-message">{{ loadError }}</p>
     <div class="month-nav">
       <button class="link" @click="goToPrev">{{ viewMode === "week" ? "← 前週" : "← 前月" }}</button>
       <span class="calendar-title">{{ navTitle }}</span>
@@ -134,6 +135,7 @@ const showBudgetModal = ref(false);
 const scheduleModalRef = ref(null);
 const expenseModalRef = ref(null);
 const budgetModalRef = ref(null);
+const loadError = ref("");
 
 const showDayDetail = computed(() => !!detailDate.value && !showScheduleModal.value && !showExpenseModal.value);
 const detailSchedules = computed(() =>
@@ -266,15 +268,21 @@ let fetchSequence = 0;
 async function fetchMonthData() {
   const requestId = ++fetchSequence;
   const params = { year: displayYear.value, month: displayMonth.value };
-  const [schedulesRes, expensesRes, budgetRes] = await Promise.all([
-    listSchedules(params),
-    listExpenses(params),
-    getBudget(params),
-  ]);
-  if (requestId !== fetchSequence) return; // 古いリクエストの応答は無視(月送り連打時のレースコンディション対策)
-  schedules.value = schedulesRes.data;
-  expenses.value = expensesRes.data;
-  budget.value = budgetRes.data;
+  try {
+    const [schedulesRes, expensesRes, budgetRes] = await Promise.all([
+      listSchedules(params),
+      listExpenses(params),
+      getBudget(params),
+    ]);
+    if (requestId !== fetchSequence) return; // 古いリクエストの応答は無視(月送り連打時のレースコンディション対策)
+    schedules.value = schedulesRes.data;
+    expenses.value = expensesRes.data;
+    budget.value = budgetRes.data;
+    loadError.value = "";
+  } catch (error) {
+    if (requestId !== fetchSequence) return;
+    loadError.value = error.response?.data?.detail || "データの取得に失敗しました";
+  }
 }
 
 function handleCellClick(day) {
