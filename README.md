@@ -116,6 +116,14 @@ docker compose exec frontend npm test
 docker compose exec frontend npm run lint
 ```
 
+バックエンドは`ruff`を導入している。デフォルトの`E4`/`E7`/`E9`/`F`(pyflakes+明確なバグにつながるpycodestyleエラー)のみを対象にし、import順序等の書式ルールは追加していない(`backend/pyproject.toml`)。
+
+```
+docker compose exec backend ruff check .
+```
+
+`requirements.txt`を変更した場合は`docker compose up --build backend`でイメージを再ビルドする必要がある。
+
 ## 品質チェック
 
 フロントエンド・バックエンド・DBそれぞれ独立したセッションで`/quality-check`コマンドによる品質チェックを実施した。進め方・統合結果は[docs/quality-check-parallel-guide.md](docs/quality-check-parallel-guide.md)を参照。

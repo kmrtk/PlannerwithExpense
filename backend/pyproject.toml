@@ -1,0 +1,9 @@
+[tool.ruff]
+line-length = 120
+exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+# デフォルト(E4, E7, E9, F)のまま。pyflakes(未使用変数・未定義名等)と
+# 明確なバグにつながるpycodestyleエラーのみを対象にし、
+# 既存コードのスタイル(import順序・改行等)を変える書式ルールは追加しない。
+select = ["E4", "E7", "E9", "F"]
