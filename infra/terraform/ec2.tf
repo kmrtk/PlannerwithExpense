@@ -66,8 +66,11 @@ resource "aws_instance" "app" {
     dnf install -y docker
     systemctl enable --now docker
     usermod -aG docker ec2-user
-    dnf install -y docker-compose-plugin
-    dnf install -y nginx
+    # AL2023のdnfリポジトリにはdocker-compose-pluginが存在しないため、公式バイナリを直接配置する
+    mkdir -p /usr/libexec/docker/cli-plugins
+    curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/libexec/docker/cli-plugins/docker-compose
+    chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+    dnf install -y nginx git
     systemctl enable --now nginx
   EOF
 
