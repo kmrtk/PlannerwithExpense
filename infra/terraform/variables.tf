@@ -19,3 +19,20 @@ variable "my_ip_cidr" {
   description = "SSH(22番)・HTTP(80番)アクセスを許可する自分のグローバルIP（例: 203.0.113.1/32）"
   type        = string
 }
+
+variable "db_name" {
+  description = "RDSに作成するデータベース名"
+  type        = string
+  default     = "planner"
+}
+
+variable "db_username" {
+  description = "RDSのマスターユーザー名"
+  type        = string
+}
+
+variable "db_password" {
+  description = "RDSのマスターパスワード"
+  type        = string
+  sensitive   = true
+}
