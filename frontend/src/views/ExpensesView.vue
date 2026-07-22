@@ -192,16 +192,24 @@ async function handleSave(payload) {
 }
 
 async function handleDelete(expense) {
-  await deleteExpense(expense.id);
-  await fetchExpenses();
+  try {
+    await deleteExpense(expense.id);
+    await fetchExpenses();
+  } catch (error) {
+    loadError.value = error.response?.data?.detail || "削除に失敗しました";
+  }
 }
 
 async function handleDeleteFromModal() {
-  if (editingExpense.value) {
-    await deleteExpense(editingExpense.value.id);
-    await fetchExpenses();
+  try {
+    if (editingExpense.value) {
+      await deleteExpense(editingExpense.value.id);
+      await fetchExpenses();
+    }
+    closeModal();
+  } catch (error) {
+    loadError.value = error.response?.data?.detail || "削除に失敗しました";
   }
-  closeModal();
 }
 
 function csvEscape(value) {
