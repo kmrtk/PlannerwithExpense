@@ -35,8 +35,9 @@
 | 項目 | 技術 |
 | --- | --- |
 | ローカル開発 | Docker Compose |
-| デプロイ先 | AWS（無料枠の範囲。主に課題提出用の公開先という位置づけで、日常利用はローカル運用を想定） |
+| デプロイ先 | AWS（EC2 t3.micro + RDS MySQL db.t3.micro、Terraformで構築。無料枠の範囲。主に課題提出用の公開先という位置づけで、日常利用はローカル運用を想定。構成・手順の詳細は[docs/08_deployment.md](08_deployment.md)を参照） |
 | バージョン管理 | Git + GitHub |
+| IaC | Terraform（`infra/terraform/`） |
 
 ---
 

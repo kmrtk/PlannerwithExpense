@@ -33,7 +33,7 @@ MySQL (:3306)
 | フロントエンド | Vue3 + Vite + Pinia + vue-router |
 | バックエンド | FastAPI + SQLAlchemy + JWT認証 |
 | データベース | MySQL 8.0 |
-| インフラ | Docker Compose |
+| インフラ | Docker Compose（ローカル）／ AWS EC2 + RDS（Terraform、本番相当デプロイ） |
 
 ## 起動方法
 
@@ -65,6 +65,7 @@ docker compose exec frontend npm test
 |--------|------|--------|
 | JWT_SECRET | JWT署名用シークレット | devsecret-change-me(本番では必ず変更) |
 | ENVIRONMENT | 実行環境(development/production) | development |
+| CORS_ORIGINS | 許可するオリジン(カンマ区切りで複数指定可) | http://localhost:5173 |
 
 `ENVIRONMENT=production`かつ`JWT_SECRET`が既定値のままの場合、起動時にエラーとなりアプリが立ち上がらない(既知の値でのトークン偽造を防ぐため)。他人がアクセスできる環境にデプロイする際は、`JWT_SECRET`を強力な値に変更した上で`ENVIRONMENT=production`を設定すること。
 
@@ -125,8 +126,12 @@ docker compose exec frontend npm run lint
 - 登録パスワードは英字・数字を両方含む8文字以上を必須とする(`backend/app/schemas/auth.py`)
 - JWT_SECRETについては上記「環境変数」を参照
 
-## 今後の課題
+## AWSデプロイ
 
-- AWS環境へのデプロイ
+Terraformで構築したEC2(t3.micro) + RDS MySQL(db.t3.micro)に本番相当のデプロイができる（無料枠の範囲。学習用個人アプリのため常時稼働はさせず、必要時のみ`terraform apply`/`terraform destroy`する運用を想定）。
+
+- Terraformリソース: `infra/terraform/`
+- 構成・デプロイ手順の詳細: [docs/08_deployment.md](docs/08_deployment.md)
+- E2E動作確認の記録: [docs/deployment-verification.md](docs/deployment-verification.md)
 
 開発中に発生した問題と対処法は[docs/07_troubleshooting.md](docs/07_troubleshooting.md)を参照。
