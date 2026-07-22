@@ -1,2 +1,7 @@
 ssh_public_key_path = "~/.ssh/plannerwithexpense.pub"
 my_ip_cidr          = "203.0.113.1/32" # 自分のグローバルIPに置き換える
+
+# db_username, db_password は機密情報のためこのファイルには書かず、
+# terraform.tfvars（gitignore対象）に直接記載すること
+# db_username = "app"
+# db_password = "strong-password-here"
