@@ -1,7 +1,7 @@
-from collections import defaultdict
 from datetime import date
 
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import case, func
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user
@@ -37,22 +37,22 @@ def get_yearly_summary(
     budgets = db.query(Budget).filter(Budget.user_id == current_user.id, Budget.year == year).all()
     savings_target_by_month = {b.month: b.savings_target for b in budgets}
 
-    expenses = (
-        db.query(Expense)
+    rows = (
+        db.query(
+            func.month(Expense.date).label("month"),
+            func.sum(case((Expense.type == "income", Expense.amount), else_=0)).label("income"),
+            func.sum(case((Expense.type != "income", Expense.amount), else_=0)).label("expense"),
+        )
         .filter(
             Expense.user_id == current_user.id,
             Expense.date >= date(year, 1, 1),
             Expense.date < date(year + 1, 1, 1),
         )
+        .group_by(func.month(Expense.date))
         .all()
     )
-    income_by_month: dict[int, int] = defaultdict(int)
-    expense_by_month: dict[int, int] = defaultdict(int)
-    for e in expenses:
-        if e.type == "income":
-            income_by_month[e.date.month] += e.amount
-        else:
-            expense_by_month[e.date.month] += e.amount
+    income_by_month = {r.month: r.income for r in rows}
+    expense_by_month = {r.month: r.expense for r in rows}
 
     return [
         MonthlyBudgetSummary(
@@ -70,18 +70,23 @@ def get_all_time_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    expenses = db.query(Expense).filter(Expense.user_id == current_user.id).all()
-    if not expenses:
+    result = (
+        db.query(
+            func.min(func.year(Expense.date)).label("start_year"),
+            func.max(func.year(Expense.date)).label("end_year"),
+            func.sum(case((Expense.type == "income", Expense.amount), else_=0)).label("total_income"),
+            func.sum(case((Expense.type != "income", Expense.amount), else_=0)).label("total_expense"),
+        )
+        .filter(Expense.user_id == current_user.id)
+        .one()
+    )
+    if result.start_year is None:
         return AllTimeSummary(start_year=None, end_year=None, total_savings=0)
 
-    years = [e.date.year for e in expenses]
-    total_income = sum(e.amount for e in expenses if e.type == "income")
-    total_expense = sum(e.amount for e in expenses if e.type != "income")
-
     return AllTimeSummary(
-        start_year=min(years),
-        end_year=max(years),
-        total_savings=total_income - total_expense,
+        start_year=result.start_year,
+        end_year=result.end_year,
+        total_savings=(result.total_income or 0) - (result.total_expense or 0),
     )
 
 
