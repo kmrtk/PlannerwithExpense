@@ -2,6 +2,20 @@
 
 家族向け予定・家計簿アプリ。
 
+## デモ
+
+ログイン画面
+
+<img width="1355" height="634" alt="ログイン画面" src="https://github.com/user-attachments/assets/f8d89385-2f61-43e1-8ece-fe95dd3c8167" />
+
+ログイン後の操作デモ
+
+https://github.com/user-attachments/assets/d43f8059-c6fa-43f8-8c49-d0bda23732fb
+
+CSVエクスポート結果（ダミーデータ）
+
+<img width="1365" height="647" alt="CSVエクスポート結果" src="https://github.com/user-attachments/assets/e8553442-d1dd-4dd8-b5ff-28df560aadb2" />
+
 ## アーキテクチャ
 
 3層構成。フロントエンドはMySQLに直接アクセスせず、必ずバックエンドAPI経由でデータを操作する。
