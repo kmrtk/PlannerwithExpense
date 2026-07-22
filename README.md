@@ -126,7 +126,7 @@ docker compose exec backend ruff check .
 
 ## 品質チェック
 
-フロントエンド・バックエンド・DBそれぞれ独立したセッションで`/quality-check`コマンドによる品質チェックを実施した。進め方・統合結果は[docs/quality-check-parallel-guide.md](docs/quality-check-parallel-guide.md)を参照。
+フロントエンド・バックエンド・DBそれぞれ独立したセッションで`/quality-check`コマンドによる品質チェックを実施した。進め方・結果は[docs/quality-check.md](docs/quality-check.md)を参照。
 
 ## セキュリティ
 
