@@ -73,6 +73,7 @@ erDiagram
     Expense {
         int id PK
         int user_id FK
+        int schedule_id FK "任意、紐付け解除時はNULL"
         string type "income または expense"
         int amount
         date date
@@ -92,6 +93,7 @@ erDiagram
     User ||--o{ Schedule : ""
     User ||--o{ Expense : ""
     User ||--o{ Budget : ""
+    Schedule ||--o{ Expense : "任意で紐付け(SET NULL)"
 ```
 
-※ `Budget`は`user_id`＋`year`＋`month`の組み合わせでユニーク（1ユーザー1ヶ月につき1件）。`savings_target`は「貯蓄目標額」で、実際の貯蓄額（収入－支出）はExpenseから都度計算する。`Schedule`と`Expense`の間に直接のリレーション（FK紐付け）はない。カレンダー画面での集約表示（予定あり/支出あり/収入あり）は、両テーブルをそれぞれ日付で絞り込んで突き合わせているだけで、データ上の紐付けは行っていない。`Schedule.recurrence_type`が`none`以外の場合、`start_datetime`を起点にクライアント側で該当日を展開する（DBに個別のインスタンス行は作らない）ため、`GET /api/schedules`は年月での絞り込みを行わず常に全件を返す。
+※ `Budget`は`user_id`＋`year`＋`month`の組み合わせでユニーク（1ユーザー1ヶ月につき1件）。`savings_target`は「貯蓄目標額」で、実際の貯蓄額（収入－支出）はExpenseから都度計算する。`Expense.schedule_id`は支出登録時に同じ日の予定を任意で紐付けるためのFK（`ondelete SET NULL`、紐付けた予定が削除されると紐付けのみ解除される）。ただしカレンダー画面での集約表示（予定あり/支出あり/収入あり）自体は、この紐付けを使わず両テーブルをそれぞれ日付で突き合わせているだけ。`Schedule.recurrence_type`が`none`以外の場合、`start_datetime`を起点にクライアント側で該当日を展開する（DBに個別のインスタンス行は作らない）ため、`GET /api/schedules`は年月での絞り込みを行わず常に全件を返す。
