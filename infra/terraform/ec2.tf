@@ -61,13 +61,25 @@ resource "aws_instance" "app" {
   key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.app.id]
 
+  # AMIの既定ルートボリュームは2GBと小さく、Dockerイメージのビルドで
+  # 容量不足になるため無料枠上限（30GB/月）内で20GBに拡張する
+  root_block_device {
+    volume_size = 20
+    volume_type = "gp3"
+  }
+
   user_data = <<-EOF
     #!/bin/bash
     dnf install -y docker
     systemctl enable --now docker
     usermod -aG docker ec2-user
-    dnf install -y docker-compose-plugin
-    dnf install -y nginx
+    # AL2023のdnfリポジトリにはdocker-compose-plugin/docker-buildx-pluginが存在しないため、公式バイナリを直接配置する
+    mkdir -p /usr/libexec/docker/cli-plugins
+    curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/libexec/docker/cli-plugins/docker-compose
+    chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+    curl -SL https://github.com/docker/buildx/releases/download/v0.35.0/buildx-v0.35.0.linux-amd64 -o /usr/libexec/docker/cli-plugins/docker-buildx
+    chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
+    dnf install -y nginx git
     systemctl enable --now nginx
   EOF
 
