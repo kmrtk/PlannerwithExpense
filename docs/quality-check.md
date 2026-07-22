@@ -61,6 +61,26 @@ PR #65・#67・#69のマージ後、フレッシュセッションで`/quality-c
 
 PR #67・#69は実装・テストともに意図通りで問題なし。
 
+## 3回目：Terraformチェック（2026-07-22）
+
+AWSデプロイ環境構築（PR #84〜#87）のマージ後、フレッシュセッションで`/quality-check`のStep 4.5（Terraform/IaCチェック）を実施。対象: `infra/terraform/`（`main.tf` / `ec2.tf` / `rds.tf` / `variables.tf` / `outputs.tf` / `terraform.tfvars` / `terraform.tfvars.example` / `.gitignore`）。
+
+| チェック項目 | 結果 | 備考 |
+|---|---|---|
+| fmt（`terraform fmt -check -recursive`） | ✅ | 差分なし |
+| validate（`terraform validate`） | ✅ | `Success! The configuration is valid.` |
+| 認証情報の変数化・sensitive設定 | ✅ | `db_password`は`variables.tf`で`variable`化・`sensitive = true`設定済み。`.tf`ファイル内への直書きなし |
+| .gitignore除外（tfvars/tfstate） | ✅ | `infra/terraform/.gitignore`で`terraform.tfvars` / `*.tfstate*` / `.terraform/`を除外。`git ls-files infra/terraform/`で実値入りの`terraform.tfvars`と`terraform.tfstate`が追跡対象に含まれていないことを確認済み（追跡されているのは`terraform.tfvars.example`のみ） |
+| セキュリティグループ（0.0.0.0/0の不必要な使用） | ✅ | EC2用SG（`plannerwithexpense-sg`）のingressは`var.my_ip_cidr`（自分のIP）限定。RDS用SG（`plannerwithexpense-rds-sg`）のingressはEC2のSG参照のみで自分のIPからも直接到達不可。egressの`0.0.0.0/0`は一般的な設定のため対象外 |
+| terraform plan（意図しない削除・再作成） | ⚠️ | `0 to add, 1 to change, 0 to destroy`で削除・再作成は含まれないが、`aws_instance.app`の`user_data`が実際に適用済みの値と差分あり（下記Medium参照） |
+| 共通（シークレット漏洩・TODO残存） | ✅ | `.tf`ファイル内にシークレットの直書き・TODOコメントなし |
+
+検出なし: Critical / High / Low
+
+### Medium（対応済み）
+
+1. ✅ **`aws_instance.app`の`user_data`がデプロイ済みインスタンスと乖離** — `terraform plan`で`user_data`のハッシュ値に差分が検出された（実機検証で判明した問題への対応として`ec2.tf`を編集した後、EC2インスタンスに対して`apply`していない状態だった）。EC2の`user_data`は起動時にのみ実行されるため、`apply`しても稼働中インスタンスへは反映されないが、コード上の記述と`.tfstate`上の記録が乖離したまま残る問題があった → `terraform apply`を再実行してstateを最新化し、`terraform plan`で差分ゼロを確認して解消
+
 ## 未対応項目一覧（Low・着手時期未定）
 
 1. （フロント）401エラー時に自動でログイン画面へ遷移しない
