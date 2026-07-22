@@ -1,12 +1,20 @@
 <template>
   <aside class="app-sidebar" :class="{ collapsed: !sidebar.isOpen }">
-    <button class="sidebar-toggle" @click="sidebar.toggle()">{{ sidebar.isOpen ? "‹" : "›" }}</button>
+    <button
+      class="sidebar-toggle"
+      :aria-label="sidebar.isOpen ? 'サイドバーを閉じる' : 'サイドバーを開く'"
+      @click="sidebar.toggle()"
+    >{{ sidebar.isOpen ? "‹" : "›" }}</button>
     <template v-if="sidebar.isOpen">
       <span class="app-title">PlannerwithExpense</span>
       <nav>
         <div class="nav-item">
           <router-link to="/calendar" :class="{ active: $route.name === 'calendar' }">カレンダー</router-link>
-          <button class="chevron" @click="toggleSection('calendar')">
+          <button
+            class="chevron"
+            :aria-label="expandedSection === 'calendar' ? 'カレンダーの年月ナビゲーションを閉じる' : 'カレンダーの年月ナビゲーションを開く'"
+            @click="toggleSection('calendar')"
+          >
             {{ expandedSection === "calendar" ? "▾" : "▸" }}
           </button>
         </div>
@@ -28,7 +36,11 @@
 
         <div class="nav-item">
           <router-link to="/expenses" :class="{ active: $route.name === 'expenses' }">家計簿</router-link>
-          <button class="chevron" @click="toggleSection('expenses')">
+          <button
+            class="chevron"
+            :aria-label="expandedSection === 'expenses' ? '家計簿の年月ナビゲーションを閉じる' : '家計簿の年月ナビゲーションを開く'"
+            @click="toggleSection('expenses')"
+          >
             {{ expandedSection === "expenses" ? "▾" : "▸" }}
           </button>
         </div>
